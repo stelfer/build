@@ -109,7 +109,7 @@ cat <<EOF > .dir-locals.el
 	 (eval . (setq exec-path (append exec-path '(concat (projectile-project-p) "build/bin" ))))))
  (c++-mode . ((eval . (progn
 			(unless (assoc "${PROJECT}-c-style" c-style-alist)
-			  (load (concat "$PWD" ".${PROJECT}-c-style.el"))
+			  (load (concat "${PWD}/" ".${PROJECT}-c-style.el"))
 			  (c-add-style "${PROJECT}-c-style" ${PROJECT}-c-style))
 			(c-set-style "${PROJECT}-c-style")
 			(unless rtags-path
