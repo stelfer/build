@@ -67,6 +67,9 @@ build/%.o : %.cpp $(DEPDIR)/%.d build/%.o.json | build/include/config.h
 	$(COMPILE) -c -o $@ $<
 	$(POSTCOMPILE)
 
+build/%.o.json:
+	mkdir -p $(@D)
+
 build/compile_commands.json: $(COMPILE_CMDS)
 	python $(BUILD)/build_compile_commands.py $@ $^
 
@@ -112,7 +115,7 @@ clean:
 check-syntax:
 	$(COMPILE) -fsyntax-only $(CHK_SOURCES)
 
-build/%.o.json: ;
+
 $(DEPDIR)/%.d: ;
 
 include $(DEPS)
