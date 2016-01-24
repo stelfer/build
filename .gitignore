@@ -1,18 +1,7 @@
 **/*~
-include/
-bin/
-lib/
-deps/
-share/
-test/
-etc/
-.desktops/
+**/
 *.xz
 *.gz
 *.zip
-llvm-*
-gtest-*
-libnl-*
-rtags
 compile_commands.json
 
