@@ -115,7 +115,8 @@ cat <<EOF > .dir-locals.el
 			  (c-add-style "${PROJECT}-c-style" ${PROJECT}-c-style))
 			(c-set-style "${PROJECT}-c-style")
 			(unless rtags-path
-			  (setq rtags-path (concat (projectile-project-p) "build/bin" )))
+			  (setq rtags-path (concat (projectile-project-p) "build/bin" ))
+			  (setq rtags-process-flags "-d ${PWD}/build/.rtags"))
 			(rtags-start-process-unless-running)
 			)))))
 
