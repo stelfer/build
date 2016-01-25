@@ -1,16 +1,18 @@
-# A build system for C/C++ projects with nice emacs integration
+# A build system for C/C++ projects with nice emacs integration #
 
-## Prerequisites
+## Prerequisites ##
 - You want to use LLVM, probably
 - You use emacs
-### On the local system
+
+#### On the local system ####
 - A usable c++ compiler
 - GNU make
-### Emacs (all from elpa OK)
+
+#### Emacs (all from elpa OK) ####
 - projectile
 - rtags
 
-## Quick Start
+## Quick Start ##
 ```
 mkdir my-project
 cd my-project
