@@ -1,7 +1,9 @@
 #!/bin/bash
-
+#
+# Copyright (C) 2016 by AT&T Services Inc. - MIT License. See LICENSE.txt
+#
 # Automatically generate the basic files
-
+#
 set -e
 
 PROJECT=$(basename $PWD)
