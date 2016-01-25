@@ -119,3 +119,7 @@ cat <<EOF > .dir-locals.el
 
 EOF
 
+
+echo "Building tooling"
+make -j check
+
