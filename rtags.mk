@@ -8,8 +8,8 @@ RTAGS_CMAKE_FLAGS	:= -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_INSTALL_PREFIX:PA
 
 include $(RTAGS_INSTALL)
 
-$(RTAGS_INSTALL): | $(OPTDIR)/$(LLVM)/.build/.install $(RTAGS_DIR)
-	cd $(@D);\
+$(RTAGS_INSTALL): | $(RTAGS_DIR)
+	cd $(RTAGS_DIR);\
 	git reset --hard $(RTAGS_GIT_SHA);\
 	git submodule init;\
 	git submodule update;\
@@ -19,8 +19,9 @@ $(RTAGS_INSTALL): | $(OPTDIR)/$(LLVM)/.build/.install $(RTAGS_DIR)
 	make -j all install
 	touch $@
 
-$(RTAGS_DIR):
-	cd $(@D);\
+$(RTAGS_DIR): | $(OPTDIR)/$(LLVM)/.build/.install 
+	mkdir -p $(OPTDIR)
+	cd $(OPTDIR);\
 	git clone https://github.com/Andersbakken/rtags.git
 
 
