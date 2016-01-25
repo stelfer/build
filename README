@@ -1,6 +1,0 @@
-
-
-* Quick Start
-
-ORGANIZATION="YOUR_ORGANIZATION_NAME" ./build/setup.sh YOUR_PROJECT_NAME
-
