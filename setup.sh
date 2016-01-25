@@ -121,5 +121,5 @@ EOF
 
 
 echo "Building tooling"
-make -j check
+make -j check-setup
 

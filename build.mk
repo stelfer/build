@@ -116,8 +116,8 @@ clean:
 check-syntax:
 	$(COMPILE) -fsyntax-only $(CHK_SOURCES)
 
-.PHONY: check
-check: ;
+.PHONY: check-setup
+check-setup: ;
 
 
 $(DEPDIR)/%.d: ;
