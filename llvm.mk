@@ -83,8 +83,12 @@ LDFLAGS			 = -Wl,-duse-ld=gold -Wl,-Map,$@.map -Wl,-demangle
 DEPFLAGS 	 	 = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
 COMPILE 		 = $(CXX) $(CXXFLAGS) $(CXXSTD) $(CXXINCLUDES) $(DEPFLAGS)
 LINK			 = $(CXX) $(CXXSTD) $(LDFLAGS) -L$(LIBDIR) -lc++ -lc++abi
-POSTCOMPILE 	 	 = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d && touch $@
 
+COMPILE_COMMANDS	:= $(BUILD)/compile_commands.json
+POSTCOMPILE_DEP		 = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d && touch $@
+POSTCOMPILE_CMD		 = ./build/build_compile_commands.py \
+				$(COMPILE_COMMANDS) $@.json && rm $@.json
+POSTCOMPILE 	 	 = $(POSTCOMPILE_DEP) ; $(POSTCOMPILE_CMD)
 
 define header_command 	 =
 

@@ -5,7 +5,6 @@ PROJECT		?= $(notdir $(PWD))
 BUILD		:= build
 DEPDIR 		:= $(BUILD)/deps
 DEPS		!= find $(DEPDIR) -name \*.d
-COMPILE_CMDS	!= find $(BUILD) -name \*.o.json
 TEST_SOURCES	!= find test -name \*.cpp
 TESTS		:= $(patsubst %.cpp,$(BUILD)/%,$(TEST_SOURCES))
 UNAME 		!= uname -rs
@@ -63,18 +62,12 @@ $(BUILD)/% : $(BUILD)/%.o
 	mkdir -p $(@D)
 	$(LINK) -o $@ $^
 
-.PRECIOUS: $(DEPDIR)/%.d $(BUILD)/%.o.json
-$(BUILD)/%.o : %.cpp $(DEPDIR)/%.d $(BUILD)/%.o.json | $(BUILD)/include/config.h
+.PRECIOUS: $(DEPDIR)/%.d
+$(BUILD)/%.o : %.cpp $(DEPDIR)/%.d | $(BUILD)/include/config.h
+	$(shell mkdir -p $(@D) $(dir $(DEPDIR)/$*.Td))
 	$(PRECOMPILE)
-	mkdir -p $(@D) $(dir $(DEPDIR)/$*.Td)
 	$(COMPILE) -c -o $@ $<
 	$(POSTCOMPILE)
-
-$(BUILD)/%.o.json:
-	mkdir -p $(@D)
-
-$(BUILD)/compile_commands.json: $(COMPILE_CMDS)
-	python $(BUILD)/build_compile_commands.py $@ $^
 
 $(BUILD)/%.a :
 	ar rcs $@ $^
