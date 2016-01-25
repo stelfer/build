@@ -1,7 +1,4 @@
 **/*~
 **/
-*.xz
-*.gz
-*.zip
 compile_commands.json
 

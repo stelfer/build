@@ -7,22 +7,21 @@ GCC_VER			:= 5.2.0
 GCC			:= gcc-$(GCC_VER)
 $(GCC)_ARCHIVE 		:= $(GCC).tar.gz
 $($(GCC)_ARCHIVE)_URL 	:= http://mirrors.kernel.org/gnu/gcc/$(GCC)/$($(GCC)_ARCHIVE)
-$(GCC)_UNARCHIVE_CMD 	:= tar -z -xf $($(GCC)_ARCHIVE) -C $(GCC) --strip-components=1
 
 COMPILER_VER		:= $(GCC)
 
-include build/$(GCC)/.build/.install
+include $(OPTDIR)/$(GCC)/.build/.install
 
-build/$(GCC)/.build/.install: | build/$(GCC)/.build/.configure
+$(OPTDIR)/$(GCC)/.build/.install: | $(OPTDIR)/$(GCC)/.build/.configure
 	mkdir -p $(@D)
 	cd $(@D)/.. && 	./contrib/download_prerequisites
 	cd $(@D);\
-	../configure --prefix=$(PWD)/build/ --enable-languages=c,c++ --disable-multilib;\
+	../configure --prefix=$(PWD)/$(BUILD) --enable-languages=c,c++ --disable-multilib;\
 	$(MAKE) -j;\
 	$(MAKE) install
 	touch $@
 
-build/$(GCC)/.build/.configure : | build/$(GCC)/.unpack
+$(OPTDIR)/$(GCC)/.build/.configure : | $(OPTDIR)/$(GCC)/.unpack
 
 
 CC			:= gcc
@@ -36,19 +35,19 @@ CXXDIAG			:= -fdiagnostics-color 		\
 			   -Wno-sign-compare
 
 CXXDEBUG		:= -ggdb3
-CXXINLINES		:= -include build/include/config.h
+CXXINLINES		:= -include $(INCLUDEDIR)/config.h
 
 ifeq ($(OPT),yes)
 CXXOPT			:= -O3
 endif
 
 CXXFLAGS		:= $(CXXWARN) $(CXXDIAG) $(CXXDEBUG) $(CXXOPT) $(CXXINLINES)
-CXXINCLUDES		:= -Ibuild/include
+CXXINCLUDES		:= -I$(INCLUDEDIR)
 CXXSTD			:= -std=gnu++14
 LDFLAGS			 = -Wl,-duse-ld=gold -Wl,-Map,$@.map -Wl,-demangle
 DEPFLAGS 	 	 = -MT $@ -MD -MF $(DEPDIR)/$*.Td
 COMPILE 		 = $(CXX) $(CXXFLAGS) $(CXXSTD) $(CXXINCLUDES) $(DEPFLAGS)
-LINK			 = $(CXX) $(CXXDIAG) $(CXXSTD) $(LDFLAGS) -Lbuild/lib
+LINK			 = $(CXX) $(CXXDIAG) $(CXXSTD) $(LDFLAGS) -L$(LIBDIR)
 POSTCOMPILE 	 	 = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d && touch $@
 
 

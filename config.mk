@@ -1,7 +1,7 @@
 #Copyright (C) 2015 by AT&T Services Inc. MIT License. See LICENSE.txt
 
 #
-# Automatically generate build/include/config.h
+# Automatically generate $(INCLUDEDIR)/config.h
 #
 
 define nl
@@ -26,7 +26,7 @@ define _CONFIG_H_POST
 #endif
 endef
 
-build/include/config.h:
+$(INCLUDEDIR)/config.h:
 	$(file >$@,$(_CONFIG_H_PRE))
 	$(file >>$@,$(foreach x,$(DEFINES),#define $(subst =, ,$(x))$(nl)))
 	$(file >>$@,$(_CONFIG_H_POST))

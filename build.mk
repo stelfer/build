@@ -2,26 +2,29 @@
 
 PWD		:= $(shell pwd -P)
 PROJECT		?= $(notdir $(PWD))
-DEPDIR 		:= build/deps
+BUILD		:= build
+DEPDIR 		:= $(BUILD)/deps
 DEPS		!= find $(DEPDIR) -name \*.d
-COMPILE_CMDS	!= find build -name \*.o.json
+COMPILE_CMDS	!= find $(BUILD) -name \*.o.json
 TEST_SOURCES	!= find test -name \*.cpp
-TESTS		:= $(patsubst %.cpp,build/%,$(TEST_SOURCES))
+TESTS		:= $(patsubst %.cpp,$(BUILD)/%,$(TEST_SOURCES))
 UNAME 		!= uname -rs
 SYSNAME		:= $(firstword $(UNAME))
 REL 		:= $(lastword $(UNAME))
 OPT		?= yes
-BUILD		:= build
 COMPILER	?= LLVM
 INSTALL_RTAGS	?= yes
-
-
+DOWNLOADS	:= $(BUILD)/downloads
+OPTDIR		:= $(BUILD)/opt
+LIBDIR		:= $(BUILD)/lib
+INCLUDEDIR	:= $(BUILD)/include
+BINDIR		:= $(BUILD)/bin
 
 .PHONY: ALL
 all: ALL
 
 # This makes sure that the includes are linked correctly
-include build/include/$(PROJECT)/.link
+include $(BUILD)/include/$(PROJECT)/.link
 
 # Compiler specific stuff
 ifeq ($(COMPILER),LLVM)
@@ -40,12 +43,12 @@ include $(BUILD)/gtest.mk
 
 
 # We only need to include the system mk file if the config.h doesn't exist
-ifeq ($(wildcard build/include/config.h),)
+ifeq ($(wildcard $(BUILD)/include/config.h),)
 include $(BUILD)/$(SYSNAME).mk
 include $(BUILD)/config.mk
 endif
 
-BIN 		 = build/bin/hello
+BIN 		 = $(BUILD)/bin/hello 
 
 ALL: $(BIN)
 
@@ -56,30 +59,30 @@ $(BIN) : | $(TESTS) $(LIBS)
 # Targets to build everything
 #
 
-build/% : build/%.o
+$(BUILD)/% : $(BUILD)/%.o
 	mkdir -p $(@D)
 	$(LINK) -o $@ $^
 
-.PRECIOUS: $(DEPDIR)/%.d build/%.o.json
-build/%.o : %.cpp $(DEPDIR)/%.d build/%.o.json | build/include/config.h
+.PRECIOUS: $(DEPDIR)/%.d $(BUILD)/%.o.json
+$(BUILD)/%.o : %.cpp $(DEPDIR)/%.d $(BUILD)/%.o.json | $(BUILD)/include/config.h
 	$(PRECOMPILE)
 	mkdir -p $(@D) $(dir $(DEPDIR)/$*.Td)
 	$(COMPILE) -c -o $@ $<
 	$(POSTCOMPILE)
 
-build/%.o.json:
+$(BUILD)/%.o.json:
 	mkdir -p $(@D)
 
-build/compile_commands.json: $(COMPILE_CMDS)
+$(BUILD)/compile_commands.json: $(COMPILE_CMDS)
 	python $(BUILD)/build_compile_commands.py $@ $^
 
-build/%.a :
+$(BUILD)/%.a :
 	ar rcs $@ $^
 
-build/test/% : build/test/%.o
+$(BUILD)/test/% : $(BUILD)/test/%.o
 	mkdir -p $(@D)
 	$(LINK) -o $@.fail $^ $(GTEST_LIBS)
-	LD_LIBRARY_PATH=build/lib $@.fail --gtest_output=xml:$(@D)/
+	LD_LIBRARY_PATH=$(LIBDIR) $@.fail --gtest_output=xml:$(@D)/
 	python $(BUILD)/parse_perf_tests.py $@.xml
 	mv $@.fail $@
 
@@ -90,25 +93,30 @@ foofofof:
 # The rest of this used to auto-install packages. See llvm.mk and gtest.mk for examples of how to
 # use
 #
-build/%/.unpack :
+$(OPTDIR)/%/.unpack :
 	echo $*
-	mkdir -p build
-	cd build ;\
+	mkdir -p $(DOWNLOADS)
+	cd $(DOWNLOADS) ;\
 	if [ ! -f $($(*)_ARCHIVE) ]; then\
 		curl -o $($(*)_ARCHIVE) $($($(*)_ARCHIVE)_URL);\
 	fi;\
-	mkdir -p $*;\
-	$($(*)_UNARCHIVE_CMD)
+	mkdir -p ../../$(OPTDIR)/$*;\
+	case "$(suffix $($(*)_ARCHIVE))" in \
+		".zip") unzip -d ../../$(OPTDIR) $($(*)_ARCHIVE) ;;\
+		".xz") 	tar -J -xf $($(*)_ARCHIVE) -C ../../$(OPTDIR)/$(*) --strip-components=1 ;;\
+		".gz") 	tar -z -xf $($(*)_ARCHIVE) -C ../../$(OPTDIR)/$(*) --strip-components=1 ;;\
+		*) echo "Don't know how to unarchive $($(*)_ARCHIVE)"; exit 1;;\
+	esac
 	touch $@
 
-build/include/$(PROJECT)/.link:
-	mkdir -p build/include
-	ln -sf ../../include build/include/$(PROJECT)
+$(BUILD)/include/$(PROJECT)/.link:
+	mkdir -p $(BUILD)/include
+	ln -sf ../../include $(BUILD)/include/$(PROJECT)
 	touch $@
 
 
 clean:
-	rm -rf build/$(PROJECT) build/test build/deps $(LIBS) $(BIN)
+	rm -rf $(BUILD)/$(PROJECT) $(BUILD)/test $(BUILD)/deps $(LIBS) $(BIN)
 
 
 .PHONY: check-syntax

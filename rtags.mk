@@ -1,14 +1,14 @@
 #Copyright (C) 2015 by AT&T Services Inc. MIT License. See LICENSE.txt
 
 RTAGS			:= rtags
-RTAGS_DIR		:= build/$(RTAGS)
+RTAGS_DIR		:= $(OPTDIR)/$(RTAGS)
 RTAGS_INSTALL		:= $(RTAGS_DIR)/.install
 RTAGS_GIT_SHA		:= 9b86f0d
 RTAGS_CMAKE_FLAGS	:= -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_INSTALL_PREFIX:PATH=$(PWD)/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$(PWD)/build
 
 include $(RTAGS_INSTALL)
 
-$(RTAGS_INSTALL): | build/$(LLVM)/.build/.install $(RTAGS_DIR)
+$(RTAGS_INSTALL): | $(OPTDIR)/$(LLVM)/.build/.install $(RTAGS_DIR)
 	cd $(@D);\
 	git reset --hard $(RTAGS_GIT_SHA);\
 	git submodule init;\
