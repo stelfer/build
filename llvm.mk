@@ -52,6 +52,7 @@ $(OPTDIR)/$(LLVM)/.build/.install: | $(OPTDIR)/$(LLVM)/.build/.configure
 		 -DCMAKE_INSTALL_PREFIX=$(PWD)/$(BUILD)			\
 		 -DLLVM_ENABLE_ASSERTIONS=On 				\
 		 -DLLVM_TARGETS_TO_BUILD="X86"				\
+		 -DLLVM_BINUTILS_INCDIR=$(PWD)/$(GOLD_INCLUDEDIR)	\
 		 -DCMAKE_CXX_FLAGS=-I$(PWD)/$(INCLUDEDIR) 		\
 		 -DCMAKE_LIBRARY_PATH=-$(PWD)/$(LIBDIR);		\
 	$(MAKE) install
@@ -80,13 +81,14 @@ ifeq ($(OPT),yes)
 CXXOPT			:= -O3
 endif
 
-CXXFLAGS		:= $(CXXWARN) $(CXXDIAG) $(CXXDEBUG) $(CXXOPT) $(CXXINLINES)
+CXXFLTO			:= -flto
+CXXFLAGS		:= $(CXXWARN) $(CXXDIAG) $(CXXDEBUG) $(CXXOPT) $(CXXINLINES) $(CXXFLTO)
 CXXINCLUDES		:= -I$(INCLUDEDIR)/c++/v1 -I$(INCLUDEDIR)
 CXXSTD			:= -std=c++14 -stdlib=libc++ 
-LDFLAGS			 = -Wl,-duse-ld=gold -Wl,-Map,$@.map -Wl,-demangle
+LDFLAGS			 = -use-gold-plugin -Wl,-duse-ld=gold -Wl,-Map,$@.map -Wl,-demangle
 DEPFLAGS 	 	 = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
 COMPILE 		 = $(CXX) $(CXXFLAGS) $(CXXSTD) $(CXXINCLUDES) $(DEPFLAGS)
-LINK			 = $(CXX) $(CXXSTD) $(LDFLAGS) -L$(LIBDIR) -lc++ -lc++abi
+LINK			 = $(CXX) -B$(BUILD) $(CXXSTD) $(LDFLAGS) -L$(LIBDIR) -lc++ -lc++abi $(CXXFLTO)
 
 COMPILE_COMMANDS	:= $(BUILD)/compile_commands.json
 POSTCOMPILE_DEP		 = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d && touch $@

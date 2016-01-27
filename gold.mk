@@ -3,6 +3,7 @@
 GOLD			:= gold
 GOLD_DIR		:= $(OPTDIR)/$(GOLD)
 GOLD_INSTALL		:= $(GOLD_DIR)/.install
+GOLD_INCLUDEDIR		:= $(INCLUDEDIR)/binutils
 GOLD_GIT_COMMIT_ISH	:= HEAD
 
 $(GOLD_INSTALL): | $(GOLD_DIR)
@@ -12,7 +13,9 @@ $(GOLD_INSTALL): | $(GOLD_DIR)
 	cd .build;\
 	../configure --enable-gold --enable-plugins --disable-werror --prefix=/opt/home/telfer/l/foo/build;\
 	make -j all-gold;\
-	make -j install-gold
+	make -j install-gold;\
+	cp -a ../include $(PWD)/$(GOLD_INCLUDEDIR)
+	ln -sf ld.gold $(BINDIR)/ld
 	touch $(GOLD_INSTALL)
 
 $(GOLD_DIR):
