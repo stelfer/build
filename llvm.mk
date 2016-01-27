@@ -23,6 +23,9 @@ COMPILER_VER		:= $(LLVM)
 include $(BUILD)/libedit.mk
 endif
 
+# Use gnu gold built for this
+include $(BUILD)/gold.mk
+
 COMPILER_RT			:= $(LLVM)/projects/compiler-rt
 $(COMPILER_RT)_ARCHIVE		:= compiler-rt-$(LLVM_VER).src.tar.xz
 $($(COMPILER_RT)_ARCHIVE)_URL	:= http://llvm.org/releases/$(LLVM_VER)/$($(COMPILER_RT)_ARCHIVE)
@@ -55,6 +58,7 @@ $(OPTDIR)/$(LLVM)/.build/.install: | $(OPTDIR)/$(LLVM)/.build/.configure
 	touch $@
 
 $(OPTDIR)/$(LLVM)/.build/.configure : |					\
+			$(GOLD_INSTALL)					\
 			$(LIBEDIT_INSTALL)				\
 			$(OPTDIR)/$(LLVM)/.unpack 				\
 			$(OPTDIR)/$(LLVM)/projects/compiler-rt/.unpack	\
