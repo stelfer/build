@@ -15,6 +15,7 @@ $(GOLD_INSTALL): | $(GOLD_DIR)
 	make -j all-gold;\
 	make -j install-gold;\
 	cp -a ../include $(PWD)/$(GOLD_INCLUDEDIR)
+	mkdir -p $(BINDIR)
 	ln -sf ld.gold $(BINDIR)/ld
 	touch $(GOLD_INSTALL)
 
