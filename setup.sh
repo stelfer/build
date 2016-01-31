@@ -105,10 +105,40 @@ EOF
 
 echo "Setting up .dir-locals.el "
 cat <<EOF > .dir-locals.el
-(
- (nil . ((eval . (setenv "ORGANIZATION" "$ORGANIZATION - MIT License. See LICENSE.txt"))
+((nil . ((eval . (setenv "ORGANIZATION" "$ORGANIZATION - MIT License. See LICENSE.txt"))
 	 (eval . (setenv "PATH" (concat (getenv "PATH") ":" (projectile-project-p) "build/bin" )))
-	 (eval . (setq exec-path (append exec-path '(concat (projectile-project-p) "build/bin" ))))))
+	 (eval . (setq exec-path (append exec-path '(concat (projectile-project-p) "build/bin" ))))
+	 (eval . (progn
+		   (define-auto-insert '"\\\\.\\\\([Hh]\\\\|hh\\\\|hpp\\\\)\\\\'"
+		     (lambda ()
+		       (let* ((yas-indent-line 'auto)
+			      (d (file-name-nondirectory (file-name-sans-extension buffer-file-name)))
+			      (u (upcase d))
+			      (ns "layers")
+			      (s (concat "// " (getenv "ORGANIZATION") "\n\n"
+					 "#ifndef _" u "_H\n"
+					 "#define _" u "_H\n"
+					 "namespace \${1:" ns "}\n{\n\n"
+					 "class " d "\n{\n"
+					 "public:\n"
+					 d "(\${2});\n"
+					 "\$0"
+					 "\n};\n\n} // namespace \$1\n\n"
+					 "#endif _" u "_H\n")))
+			 (yas-expand-snippet s (point) (point) nil) )))
+
+		   (define-auto-insert '"\\\\.\\\\(C\\\\|cc\\\\|cpp\\\\)\\\\'"
+		     (lambda ()
+		       (let* ((yas-indent-line 'auto)
+			      (d (file-name-nondirectory (file-name-sans-extension buffer-file-name)))
+			      (u (upcase d))
+			      (ns "layers")
+			      (s (concat "// " (getenv "ORGANIZATION") "\n\n"
+					 "#include \\"\${1:" ns "}/\${2:" d "}.h\\"\n\n"
+					 "using namespace " ns ";\n\n"
+					 "\$0"
+					 "\n\n")))
+			 (yas-expand-snippet s (point) (point) nil) )))))))
  (c++-mode . ((eval . (progn
 			(unless (assoc "${PROJECT}-c-style" c-style-alist)
 			  (load (concat "${PWD}/" ".${PROJECT}-c-style.el"))
@@ -117,8 +147,7 @@ cat <<EOF > .dir-locals.el
 			(unless rtags-path
 			  (setq rtags-path (concat (projectile-project-p) "build/bin" ))
 			  (setq rtags-process-flags "-d ${PWD}/build/.rtags"))
-			(rtags-start-process-unless-running)
-			)))))
+			(rtags-start-process-unless-running))))))
 
 EOF
 
