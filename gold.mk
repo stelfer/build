@@ -11,7 +11,7 @@ $(GOLD_INSTALL): | $(GOLD_DIR)
 	git reset --hard $(GOLD_GIT_COMMIT_ISH);\
 	mkdir .build;\
 	cd .build;\
-	../configure --enable-gold --enable-plugins --disable-werror --prefix=/opt/home/telfer/l/foo/build;\
+	../configure --enable-gold --enable-plugins --disable-werror --prefix=$(PWD)/$(BUILD);\
 	make -j all-gold;\
 	make -j install-gold;\
 	cp -a ../include $(PWD)/$(GOLD_INCLUDEDIR)
