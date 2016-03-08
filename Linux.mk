@@ -26,12 +26,12 @@ endif
 
 DEFINES			+= HAVE_EPOLL
 
-L1_DCACHE_LINESIZE	!= getconf LEVEL1_DCACHE_LINESIZE
+L1_DCACHE_LINESIZE	:= $(shell getconf LEVEL1_DCACHE_LINESIZE)
 DEFINES 		+= L1_DCACHE_LINESIZE=$(L1_DCACHE_LINESIZE)
 
 
 TEST_PERF_INSTR		:= $(wildcard /sys/devices/cpu/events/instructions)
-TEST_RDTSC		!= grep -q rdtsc /proc/cpuinfo && echo "yes"
+TEST_RDTSC		:= $(shell grep -q rdtsc /proc/cpuinfo && echo "yes")
 
 # perf_timer support
 ifeq ($(TEST_PERF_INSTR),/sys/devices/cpu/events/instructions)
