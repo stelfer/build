@@ -15,6 +15,14 @@ if [ -z "$ORGANIZATION" ]; then
     ORGANIZATION=$USER
 fi
 
+if [ -z "$HOST_CC" ] ; then
+    HOST_CC=$(which gcc)
+fi
+
+if [ -z "$HOST_CXX" ] ; then
+    HOST_CC=$(which g++)
+fi
+
 echo "Creating stub for $PROJECT under $ORGANIZATION"
 
 echo "Creating Makefile"
@@ -26,6 +34,10 @@ cat <<EOF > Makefile
 
 # Override this if your project source is not the same name as the current directory
 PROJECT			:= ${PROJECT}
+
+# We need these to bootstrap our toolchain
+HOST_CC			:= ${HOST_CC}
+HOST_CXX		:= ${HOST_CXX}
 
 # Include the mothership
 include build/build.mk

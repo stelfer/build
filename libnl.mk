@@ -2,14 +2,16 @@
 
 LIBNL_VER		:= 3.2.25
 LIBNL			:= libnl-$(LIBNL_VER)
+LIBNL_UNPACK		:= $(OPTDIR)/$(LIBNL)/.unpack
+LIBNL_INSTALL		:= $(OPTDIR)/$(LIBNL)/.install
 $(LIBNL)_ARCHIVE 	:= $(LIBNL).tar.gz
 $($(LIBNL)_ARCHIVE)_URL := http://www.infradead.org/~tgr/libnl/files/$($(LIBNL)_ARCHIVE)
+$(LIBNL_UNPACK)		: $(DOWNLOADS)/$($(LIBNL)_ARCHIVE) 
 
-include $(OPTDIR)/$(LIBNL)/.install
+include $(LIBNL_INSTALL)
 
-$(OPTDIR)/$(LIBNL)/.unpack: | $(OPTDIR)/$(LLVM)/.build/.install
 
-$(OPTDIR)/$(LIBNL)/.install: | $(OPTDIR)/$(LIBNL)/.unpack
+$(LIBNL_INSTALL): | $(LIBNL_UNPACK) $(OPTDIR)/$(LLVM)/.build/.install
 	mkdir -p $(@D)
 	cd $(@D);\
 	./configure --prefix=$(PWD)/$(BUILD) --disable-cli --disable-pthreads CC=$(PWD)/$(CC) CXX=$(PWD)/$(CXX) CXXFLAGS="$(CXXSTD)"

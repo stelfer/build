@@ -1,24 +1,56 @@
 #Copyright (C) 2015 by AT&T Services Inc. MIT License. See LICENSE.txt
 
-BUILD_LLDB		?= no
+COMPILER_VER			:= $(LLVM)
 
-LLVM_VER		:= 3.7.0
-LLVM			:= llvm-$(LLVM_VER)
-$(LLVM)_ARCHIVE 	:= $(LLVM).src.tar.xz
-$($(LLVM)_ARCHIVE)_URL 	:= http://llvm.org/releases/$(LLVM_VER)/$($(LLVM)_ARCHIVE)
+BUILD_LLDB			?= no
 
-CLANG			:= $(LLVM)/tools/clang
-$(CLANG)_ARCHIVE	:= cfe-$(LLVM_VER).src.tar.xz
-$($(CLANG)_ARCHIVE)_URL	:= http://llvm.org/releases/$(LLVM_VER)/$($(CLANG)_ARCHIVE)
+LLVM_VER			:= 3.7.0
+LLVM				:= llvm-$(LLVM_VER)
+LLVM_UNPACK			:= $(OPTDIR)/$(LLVM)/.unpack
+LLVM_INSTALL			:= $(OPTDIR)/$(LLVM)/.build/.install
+$(LLVM)_ARCHIVE 		:= $(LLVM).src.tar.xz
+$($(LLVM)_ARCHIVE)_URL 		:= http://llvm.org/releases/$(LLVM_VER)/$($(LLVM)_ARCHIVE)
+$(LLVM_UNPACK)			: $(DOWNLOADS)/$($(LLVM)_ARCHIVE)
+
+CLANG				:= $(LLVM)/tools/clang
+CLANG_UNPACK			:= $(OPTDIR)/$(LLVM)/tools/clang/.unpack
+$(CLANG)_ARCHIVE		:= cfe-$(LLVM_VER).src.tar.xz
+$($(CLANG)_ARCHIVE)_URL		:= http://llvm.org/releases/$(LLVM_VER)/$($(CLANG)_ARCHIVE)
+$(CLANG_UNPACK)			: $(DOWNLOADS)/$($(CLANG)_ARCHIVE)
 
 ifeq ($(BUILD_LLDB),yes)
-LLDB			:= $(LLVM)/tools/lldb
-$(LLDB)_ARCHIVE	:= lldb-$(LLVM_VER).src.tar.xz
-$($(LLDB)_ARCHIVE)_URL	:= http://llvm.org/releases/$(LLVM_VER)/$($(LLDB)_ARCHIVE)
-LLDB_UNPACK		:= $(OPTDIR)/$(LLDB)/.unpack
+LLDB				:= $(LLVM)/tools/lldb
+LLDB_UNPACK			:= $(OPTDIR)/$(LLDB)/.unpack
+$(LLDB)_ARCHIVE			:= lldb-$(LLVM_VER).src.tar.xz
+$($(LLDB)_ARCHIVE)_URL		:= http://llvm.org/releases/$(LLVM_VER)/$($(LLDB)_ARCHIVE)
+$(LLDB_UNPACK)			: $(DOWNLOADS)/$($(LLDB)_ARCHIVE)
+endif
 
-COMPILER_VER		:= $(LLVM)
+COMPILER_RT			:= $(LLVM)/projects/compiler-rt
+COMPILER_RT_UNPACK		:= $(OPTDIR)/$(LLVM)/projects/compiler-rt/.unpack
+$(COMPILER_RT)_ARCHIVE		:= compiler-rt-$(LLVM_VER).src.tar.xz
+$($(COMPILER_RT)_ARCHIVE)_URL	:= http://llvm.org/releases/$(LLVM_VER)/$($(COMPILER_RT)_ARCHIVE)
+$(COMPILER_RT_UNPACK)		: $(DOWNLOADS)/$($(COMPILER_RT)_ARCHIVE)
 
+LIBCXX				:= $(LLVM)/projects/libcxx
+LIBCXX_UNPACK			:= $(OPTDIR)/$(LLVM)/projects/libcxx/.unpack
+$(LIBCXX)_ARCHIVE		:= libcxx-$(LLVM_VER).src.tar.xz
+$($(LIBCXX)_ARCHIVE)_URL	:= http://llvm.org/releases/$(LLVM_VER)/$($(LIBCXX)_ARCHIVE)
+$(LIBCXX_UNPACK)		: $(DOWNLOADS)/$($(LIBCXX)_ARCHIVE)
+
+LIBCXXABI			:= $(LLVM)/projects/libcxxabi
+LIBCXXABI_UNPACK		:= $(OPTDIR)/$(LLVM)/projects/libcxxabi/.unpack
+$(LIBCXXABI)_ARCHIVE		:= libcxxabi-$(LLVM_VER).src.tar.xz
+$($(LIBCXXABI)_ARCHIVE)_URL	:= http://llvm.org/releases/$(LLVM_VER)/$($(LIBCXXABI)_ARCHIVE)
+$(LIBCXXABI_UNPACK)		: $(DOWNLOADS)/$($(LIBCXXABI)_ARCHIVE)
+
+EXTRA				:= $(LLVM)/tools/clang/tools/extra
+EXTRA_UNPACK			:= $(OPTDIR)/$(LLVM)/tools/clang/tools/extra/.unpack
+$(EXTRA)_ARCHIVE		:= clang-tools-extra-$(LLVM_VER).src.tar.xz
+$($(EXTRA)_ARCHIVE)_URL		:= http://llvm.org/releases/$(LLVM_VER)/$($(EXTRA)_ARCHIVE)
+$(EXTRA_UNPACK)			: $(DOWNLOADS)/$($(EXTRA)_ARCHIVE)
+
+ifeq ($(BUILD_LLDB),yes)
 # lldb requires libedit
 include $(BUILD)/libedit.mk
 endif
@@ -26,23 +58,7 @@ endif
 # Use gnu gold built for this
 include $(BUILD)/gold.mk
 
-COMPILER_RT			:= $(LLVM)/projects/compiler-rt
-$(COMPILER_RT)_ARCHIVE		:= compiler-rt-$(LLVM_VER).src.tar.xz
-$($(COMPILER_RT)_ARCHIVE)_URL	:= http://llvm.org/releases/$(LLVM_VER)/$($(COMPILER_RT)_ARCHIVE)
-
-LIBCXX				:= $(LLVM)/projects/libcxx
-$(LIBCXX)_ARCHIVE		:= libcxx-$(LLVM_VER).src.tar.xz
-$($(LIBCXX)_ARCHIVE)_URL	:= http://llvm.org/releases/$(LLVM_VER)/$($(LIBCXX)_ARCHIVE)
-
-LIBCXXABI			:= $(LLVM)/projects/libcxxabi
-$(LIBCXXABI)_ARCHIVE		:= libcxxabi-$(LLVM_VER).src.tar.xz
-$($(LIBCXXABI)_ARCHIVE)_URL	:= http://llvm.org/releases/$(LLVM_VER)/$($(LIBCXXABI)_ARCHIVE)
-
-EXTRA			:= $(LLVM)/tools/clang/tools/extra
-$(EXTRA)_ARCHIVE	:= clang-tools-extra-$(LLVM_VER).src.tar.xz
-$($(EXTRA)_ARCHIVE)_URL	:= http://llvm.org/releases/$(LLVM_VER)/$($(EXTRA)_ARCHIVE)
-
-include $(OPTDIR)/$(LLVM)/.build/.install
+include $(LLVM_INSTALL)
 
 $(OPTDIR)/$(LLVM)/.build/.install: | $(OPTDIR)/$(LLVM)/.build/.configure
 	mkdir -p $(@D)
@@ -58,16 +74,16 @@ $(OPTDIR)/$(LLVM)/.build/.install: | $(OPTDIR)/$(LLVM)/.build/.configure
 	$(MAKE) install
 	touch $@
 
-$(OPTDIR)/$(LLVM)/.build/.configure : |					\
-			$(GOLD_INSTALL)					\
-			$(LIBEDIT_INSTALL)				\
-			$(OPTDIR)/$(LLVM)/.unpack 				\
-			$(OPTDIR)/$(LLVM)/projects/compiler-rt/.unpack	\
-			$(OPTDIR)/$(LLVM)/tools/clang/.unpack		\
-			$(LLDB_UNPACK)					\
-			$(OPTDIR)/$(LLVM)/tools/clang/tools/extra/.unpack	\
-			$(OPTDIR)/$(LLVM)/projects/libcxx/.unpack		\
-			$(OPTDIR)/$(LLVM)/projects/libcxxabi/.unpack
+$(OPTDIR)/$(LLVM)/.build/.configure : |		\
+			$(GOLD_INSTALL)		\
+			$(LIBEDIT_INSTALL)	\
+			$(LLVM_UNPACK) 		\
+			$(COMPILER_RT_UNPACK)	\
+			$(CLANG_UNPACK)		\
+			$(LLDB_UNPACK)		\
+			$(EXTRA_UNPACK)		\
+			$(LIBCXX_UNPACK)	\
+			$(LIBCXXABI_UNPACK)
 
 
 CC			:= $(BINDIR)/clang

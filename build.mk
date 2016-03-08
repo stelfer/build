@@ -32,6 +32,9 @@ else ifeq ($(COMPILER),GCC)
 include $(BUILD)/gcc.mk
 endif
 
+# NASM
+include $(BUILD)/nasm.mk
+
 # Rtags
 ifeq ($(INSTALL_RTAGS),yes)
 include $(BUILD)/rtags.mk
@@ -86,18 +89,16 @@ foofofof:
 # The rest of this used to auto-install packages. See llvm.mk and gtest.mk for examples of how to
 # use
 #
-$(OPTDIR)/%/.unpack :
-	echo $*
-	mkdir -p $(DOWNLOADS)
-	cd $(DOWNLOADS) ;\
-	if [ ! -f $($(*)_ARCHIVE) ]; then\
-		curl -o $($(*)_ARCHIVE) $($($(*)_ARCHIVE)_URL);\
-	fi;\
-	mkdir -p ../../$(OPTDIR)/$*;\
+$(DOWNLOADS)/% :
+	mkdir -p $(@D)
+	curl -o $@ $($(*)_URL)
+
+$(OPTDIR)/%/.unpack : $(%_ARCHIVE)
+	mkdir -p $(@D)
 	case "$(suffix $($(*)_ARCHIVE))" in \
-		".zip") unzip -d ../../$(OPTDIR) $($(*)_ARCHIVE) ;;\
-		".xz") 	tar -J -xf $($(*)_ARCHIVE) -C ../../$(OPTDIR)/$(*) --strip-components=1 ;;\
-		".gz") 	tar -z -xf $($(*)_ARCHIVE) -C ../../$(OPTDIR)/$(*) --strip-components=1 ;;\
+		".zip") unzip -d $(OPTDIR) $< ;;\
+		".xz") 	tar -J -xf $< -C $(@D) --strip-components=1 ;;\
+		".gz") 	tar -z -xf $< -C $(@D) --strip-components=1 ;;\
 		*) echo "Don't know how to unarchive $($(*)_ARCHIVE)"; exit 1;;\
 	esac
 	touch $@

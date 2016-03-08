@@ -7,6 +7,7 @@ $($(LIBEDIT)_ARCHIVE)_URL 	:= http://thrysoee.dk/editline/$($(LIBEDIT)_ARCHIVE)
 LIBEDIT_INSTALL			:= $(OPTDIR)/$(LIBEDIT)/.install
 LIBEDIT_UNPACK			:= $(OPTDIR)/$(LIBEDIT)/.unpack
 LIBEDIT_CONFIGURE		:= $(OPTDIR)/$(LIBEDIT)/.configure
+$(LIBEDIT_UNPACK)		: $(DOWNLOADS)/$($(LIBEDIT)_ARCHIVE)
 
 include $(LIBEDIT_INSTALL)
 
