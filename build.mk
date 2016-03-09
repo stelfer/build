@@ -25,6 +25,9 @@ all: ALL
 # This makes sure that the includes are linked correctly
 include $(BUILD)/include/$(PROJECT)/.link
 
+# Targets
+include $(BUILD)/target.mk
+
 # Compiler specific stuff
 ifeq ($(COMPILER),LLVM)
 include $(BUILD)/llvm.mk
@@ -67,10 +70,25 @@ $(BUILD)/% : $(BUILD)/%.o
 
 .PRECIOUS: $(DEPDIR)/%.d
 $(BUILD)/%.o : %.cpp $(DEPDIR)/%.d | $(BUILD)/include/config.h
-	$(shell mkdir -p $(@D) $(dir $(DEPDIR)/$*.Td))
-	$(PRECOMPILE)
-	$(COMPILE) -c -o $@ $<
-	$(POSTCOMPILE)
+	$(PRECOMPILE_DEP)
+	$(call PRECOMPILE_CMD,$(COMPILE_CXX),$<)
+	$(COMPILE_CXX) $(DEPFLAGS) -c -o $@ $<
+	$(POSTCOMPILE_CMD)
+	$(POSTCOMPILE_DEP)
+
+$(BUILD)/%.o : %.c | $(DEPDIR)/%.d
+	@$(PRECOMPILE_DEP)
+	@$(call PRECOMPILE_CMD,$(TARGET_COMPILE_CC),$<)
+	$(TARGET_COMPILE_CC) $(DEPFLAGS) -o $@ -c $<
+	@$(POSTCOMPILE_CMD)
+	@$(POSTCOMPILE_DEP)
+
+$(BUILD)/%.bin : %.asm | $(DEPDIR)/%.d
+	$(call NASM_BUILD,bin)
+
+
+build/%.$(TARGET_ARCH).o : %.asm | $(DEPDIR)/%.d
+	$(call NASM_BUILD,$(TARGET_ARCH))
 
 $(BUILD)/%.a :
 	ar rcs $@ $^
@@ -111,7 +129,7 @@ $(BUILD)/include/$(PROJECT)/.link:
 
 clean:
 	rm -rf $(BUILD)/$(PROJECT) $(BUILD)/test $(BUILD)/deps $(LIBS) $(BIN)
-
+	$(MAKE) $(PROJECT)-clean
 
 .PHONY: check-syntax
 check-syntax:

@@ -87,8 +87,18 @@ $(OPTDIR)/$(LLVM)/.build/.configure : |		\
 
 
 CC			:= $(BINDIR)/clang
+CCARCH			:= -match=native -mtune=native
+CCWARN			:= -Wall -Werror -Wextra -pedantic -Wno-language-extension-token
+CCDIAG			:= -ferror-limit=2
+CCFLAGS			:= $(CCWARN) $(CCDIAG)
+CCSTD			:= -std=gnu99 -x c
+CCINCLUDES		:= -I$(INCLUDEDIR)
+COMPILE_CC		:= $(CC) $(CCARCH) $(CCFLAGS) $(CCINCLUDES) $(DEPFLAGS)
+
+
 CXX			:= $(BINDIR)/clang++
-CXXWARN			:= -Wall -Werror
+CCARCH			:= $(CCARCH)
+CXXWARN			:= $(CCWARN)
 CXXDIAG			:= -ferror-limit=2 -fdiagnostics-show-template-tree
 CXXDEBUG		:= -ggdb3
 CXXINLINES		:= -include $(INCLUDEDIR)/config.h
@@ -100,10 +110,11 @@ endif
 CXXFLTO			:= -flto
 CXXFLAGS		:= $(CXXWARN) $(CXXDIAG) $(CXXDEBUG) $(CXXOPT) $(CXXINLINES) $(CXXFLTO)
 CXXINCLUDES		:= -I$(INCLUDEDIR)/c++/v1 -I$(INCLUDEDIR)
-CXXSTD			:= -std=c++14 -stdlib=libc++ 
+CXXSTD			:= -std=c++14 -stdlib=libc++ -x c++
+COMPILE_CXX 		 = $(CXX) $(CXXFLAGS) $(CXXSTD) $(CXXINCLUDES)
+
 LDFLAGS			 = -use-gold-plugin -Wl,-duse-ld=gold -Wl,-Map,$@.map -Wl,-demangle
 DEPFLAGS 	 	 = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
-COMPILE 		 = $(CXX) $(CXXFLAGS) $(CXXSTD) $(CXXINCLUDES) $(DEPFLAGS)
 LINK			 = $(CXX) -B$(BUILD) $(CXXSTD) $(LDFLAGS) -L$(LIBDIR) -lc++ -lc++abi $(CXXFLTO)
 
 COMPILE_COMMANDS	:= $(BUILD)/compile_commands.json
@@ -112,25 +123,23 @@ POSTCOMPILE_CMD		 = ./build/build_compile_commands.py \
 				$(COMPILE_COMMANDS) $@.json && rm $@.json
 POSTCOMPILE 	 	 = $(POSTCOMPILE_DEP) ; $(POSTCOMPILE_CMD)
 
-define header_command 	 =
+define emit_compile_command
 
 {
 	"directory" : "$(PWD)",
-	"command" : "$(CXX) -x c++ -fsyntax-only $(CXXFLAGS) $(CXXSTD) $(CXXINCLUDES) $(1)",
-	"file" : "$(1)"
-},
-endef
-
-define tgt_command 	 =
-
-{
-	"directory" : "$(PWD)",
-	"command" : "$(COMPILE) -c -o $@ $<",
-	"file" : "$<"
+	"command" : "$(1) $(2)",
+	"file" : "$(2)"
 }
 endef
 
+PRECOMPILE_DEP 		 = $(shell mkdir -p $(@D) $(dir $(DEPDIR)/$*.Td))
+
+
 # Build the $@.json compile_command file for clang ast parsing tools
-PRECOMPILE	 	 = $(file >$@.json,					\
-				[$(foreach x,$(filter build/%.h,$^),		\
-				$(call header_command,$(x)))$(tgt_command)])
+PRECOMPILE_CMD	 	 = $(file >$@.json,						\
+				[$(foreach x,$(filter build/%.h,$^),			\
+				$(call emit_compile_command,$(1) -fsyntax-only,$(x)),)	\
+				$(call emit_compile_command,$(1) -o $@ -c     ,$(2))])
+
+
+
