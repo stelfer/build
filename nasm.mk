@@ -21,9 +21,9 @@ NASM			:= $(BINDIR)/nasm
 NASM_DEPFLAGS		 = -MT $@ -MF $(DEPDIR)/$(*).Td
 
 define NASM_BUILD
-@$(PRECOMPILE_DEP)
+$(PRECOMPILE_DEP)
 $(NASM) $(NASM_DEPFLAGS) $< -f $(1) -o $@
-@$(POSTCOMPILE_DEP)
+$(POSTCOMPILE_DEP)
 endef
 
 

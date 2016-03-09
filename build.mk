@@ -77,11 +77,11 @@ $(BUILD)/%.o : %.cpp $(DEPDIR)/%.d | $(BUILD)/include/config.h
 	$(POSTCOMPILE_DEP)
 
 $(BUILD)/%.o : %.c | $(DEPDIR)/%.d
-	@$(PRECOMPILE_DEP)
-	@$(call PRECOMPILE_CMD,$(TARGET_COMPILE_CC),$<)
+	$(PRECOMPILE_DEP)
+	$(call PRECOMPILE_CMD,$(TARGET_COMPILE_CC),$<)
 	$(TARGET_COMPILE_CC) $(DEPFLAGS) -o $@ -c $<
-	@$(POSTCOMPILE_CMD)
-	@$(POSTCOMPILE_DEP)
+	$(POSTCOMPILE_CMD)
+	$(POSTCOMPILE_DEP)
 
 $(BUILD)/%.bin : %.asm | $(DEPDIR)/%.d
 	$(call NASM_BUILD,bin)
