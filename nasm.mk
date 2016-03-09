@@ -17,6 +17,14 @@ $(NASM_INSTALL): | $(NASM_UNPACK)
 	touch $@
 
 
+NASM			:= $(BINDIR)/nasm
+NASM_DEPFLAGS		 = -MT $@ -MF $(DEPDIR)/$(*).Td
+
+define NASM_BUILD
+@$(PRECOMPILE_DEP)
+$(NASM) $(NASM_DEPFLAGS) $< -f $(1) -o $@
+@$(POSTCOMPILE_DEP)
+endef
 
 
 

@@ -10,7 +10,7 @@ GOLD_TARGET		:= i686-elf
 $(GOLD_INSTALL): | $(GOLD_DIR)
 	cd $(GOLD_DIR) && git reset --hard $(GOLD_GIT_COMMIT_ISH)
 	mkdir -p $(@D)
-	cd $(@D) && ../configure --target=i686-elf --prefix=$(PWD)/$(BUILD) --with-sysroot --disable-nls --disable-werror --enable-plugins --enable-gold CXX=$(HOST_CC) CC=$(HOST_CC)
+	cd $(@D) && ../configure --target=$(TARGET) --prefix=$(PWD)/$(BUILD) --with-sysroot --disable-nls --disable-werror --enable-plugins --enable-gold CXX=$(HOST_CC) CC=$(HOST_CC)
 	$(MAKE) -C $(@D)
 	$(MAKE) -C $(@D) install
 	ln -sf $(GOLD_TARGET)-ld.gold $(BINDIR)/ld
@@ -20,7 +20,6 @@ $(GOLD_INSTALL): | $(GOLD_DIR)
 $(GOLD_DIR):
 	mkdir -p $(OPTDIR)
 	cd $(OPTDIR) &&  git clone --depth 1 git://sourceware.org/git/binutils-gdb.git $(GOLD)
-
 
 
 
