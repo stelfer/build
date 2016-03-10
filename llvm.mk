@@ -56,7 +56,7 @@ include $(BUILD)/libedit.mk
 endif
 
 # Use gnu gold built for this
-include $(BUILD)/gold.mk
+include $(BUILD)/binutils.mk
 
 include $(LLVM_INSTALL)
 
@@ -68,14 +68,14 @@ $(OPTDIR)/$(LLVM)/.build/.install: | $(OPTDIR)/$(LLVM)/.build/.configure
 		 -DCMAKE_INSTALL_PREFIX=$(PWD)/$(BUILD)			\
 		 -DLLVM_ENABLE_ASSERTIONS=On 				\
 		 -DLLVM_TARGETS_TO_BUILD="X86"				\
-		 -DLLVM_BINUTILS_INCDIR=$(PWD)/$(GOLD_INCLUDEDIR)	\
+		 -DLLVM_BINUTILS_INCDIR=$(PWD)/$(BINUTILS_INCLUDEDIR)	\
 		 -DCMAKE_CXX_FLAGS=-I$(PWD)/$(INCLUDEDIR) 		\
 		 -DCMAKE_LIBRARY_PATH=-$(PWD)/$(LIBDIR);		\
 	$(MAKE) install
 	touch $@
 
 $(OPTDIR)/$(LLVM)/.build/.configure : |		\
-			$(GOLD_INSTALL)		\
+			$(BINUTILS_INSTALL)		\
 			$(LIBEDIT_INSTALL)	\
 			$(LLVM_UNPACK) 		\
 			$(COMPILER_RT_UNPACK)	\
