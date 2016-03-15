@@ -152,12 +152,14 @@ echo "Setting up .dir-locals.el "
 backup ".dir-locals.el"
 cat <<EOF > .dir-locals.el
 ((nil . ((eval . (setenv "ORGANIZATION" "$ORGANIZATION - MIT License. See LICENSE.txt"))
-	 (eval . (let ((path (concat (projectile-project-p) "build/bin/")))
+	 (eval . (let ((path "${PWD}/build/bin"))
 		   (unless (string= path (car (parse-colon-path (getenv "PATH"))))
-		     (setenv "PATH" (concat path ":" (getenv "PATH"))))))
-	 (eval . (let ((path (concat (projectile-project-p) "build/bin")))
+		     (setenv "PATH" (concat path ":" (getenv "PATH"))))
 		   (unless (string= path (car exec-path))
-		     (setq exec-path (push path exec-path)))))
+		     (setq exec-path (push path exec-path)))
+		   (unless rtags-path
+		     (setq rtags-path path))
+		   (setq rtags-process-flags "-d ${PWD}/build/.rtags")))
 	 (eval . (progn
 		   (define-auto-insert '"\\\\.\\\\([Hh]\\\\|hh\\\\|hpp\\\\)\\\\'"
 		     (lambda ()
@@ -190,16 +192,17 @@ cat <<EOF > .dir-locals.el
 					 "\n\n")))
 			 (yas-expand-snippet s (point) (point) nil) )))))))
  (c++-mode . ((eval . (progn
-			(add-hook 'before-save-hook 'clang-format-buffer)
 			(unless (assoc "${PROJECT}-c-style" c-style-alist)
 			  (load (concat "${PWD}/" ".${PROJECT}-c-style.el"))
 			  (c-add-style "${PROJECT}-c-style" ${PROJECT}-c-style))
 			(c-set-style "${PROJECT}-c-style")
-			(unless rtags-path
-			  (setq rtags-path (concat (projectile-project-p) "build/bin" ))
-			  (setq rtags-process-flags "-d ${PWD}/build/.rtags"))
 			(rtags-start-process-unless-running))))))
-
+ (c-mode . ((eval . (progn
+			(unless (assoc "${PROJECT}-c-style" c-style-alist)
+			  (load (concat "${PWD}/" ".${PROJECT}-c-style.el"))
+			  (c-add-style "${PROJECT}-c-style" ${PROJECT}-c-style))
+			(c-set-style "${PROJECT}-c-style")
+			(rtags-start-process-unless-running))))))
 EOF
 
 echo "Setting up clang-format"
