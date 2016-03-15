@@ -156,10 +156,7 @@ cat <<EOF > .dir-locals.el
 		   (unless (string= path (car (parse-colon-path (getenv "PATH"))))
 		     (setenv "PATH" (concat path ":" (getenv "PATH"))))
 		   (unless (string= path (car exec-path))
-		     (setq exec-path (push path exec-path)))
-		   (unless rtags-path
-		     (setq rtags-path path))
-		   (setq rtags-process-flags "-d ${PWD}/build/.rtags")))
+		     (setq exec-path (push path exec-path)))))
 	 (eval . (progn
 		   (define-auto-insert '"\\\\.\\\\([Hh]\\\\|hh\\\\|hpp\\\\)\\\\'"
 		     (lambda ()
@@ -196,12 +193,18 @@ cat <<EOF > .dir-locals.el
 			  (load (concat "${PWD}/" ".${PROJECT}-c-style.el"))
 			  (c-add-style "${PROJECT}-c-style" ${PROJECT}-c-style))
 			(c-set-style "${PROJECT}-c-style")
-			(rtags-start-process-unless-running))))))
+			(unless rtags-path
+			  (setq rtags-path "${PWD}/build/bin")
+			  (setq rtags-process-flags "-d ${PWD}/build/.rtags"))
+			(rtags-start-process-unless-running)))))
  (c-mode . ((eval . (progn
 			(unless (assoc "${PROJECT}-c-style" c-style-alist)
 			  (load (concat "${PWD}/" ".${PROJECT}-c-style.el"))
 			  (c-add-style "${PROJECT}-c-style" ${PROJECT}-c-style))
 			(c-set-style "${PROJECT}-c-style")
+			(unless rtags-path
+			  (setq rtags-path "${PWD}/build/bin")
+			  (setq rtags-process-flags "-d ${PWD}/build/.rtags"))
 			(rtags-start-process-unless-running))))))
 EOF
 
