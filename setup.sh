@@ -39,9 +39,19 @@ if [ -z $TARGET_LDEMU ] ; then
     TARGET_LDEMU=elf_i386
 fi
 
+function backup {
+    if [ -f $1 ]; then
+	echo "Backing up Existing $1"
+	cp $1 $1.bk
+    fi
+
+}
+
 echo "Creating stub for $PROJECT under $ORGANIZATION"
 
+
 echo "Creating Makefile"
+backup "Makefile"    
 cat <<EOF > Makefile
 #
 # A Makefile for project \`${PROJECT}'
@@ -84,9 +94,11 @@ done
 mkdir -p include
 
 echo "Setting up license"
+backup "LICENSE.txt"
 cp build/LICENSE.txt LICENSE.txt
 
 echo "Setting up emacs c++-style"
+backup ".${PROJECT}-c-style.el"
 cat <<EOF > .${PROJECT}-c-style.el
 (defconst ${PROJECT}-c-style
   '((c-basic-offset . 4)
@@ -137,6 +149,7 @@ cat <<EOF > .${PROJECT}-c-style.el
 EOF
 
 echo "Setting up .dir-locals.el "
+backup ".dir-locals.el"
 cat <<EOF > .dir-locals.el
 ((nil . ((eval . (setenv "ORGANIZATION" "$ORGANIZATION - MIT License. See LICENSE.txt"))
 	 (eval . (let ((path (concat (projectile-project-p) "build/bin/")))
@@ -190,6 +203,7 @@ cat <<EOF > .dir-locals.el
 EOF
 
 echo "Setting up clang-format"
+backup ".clang-format"
 cat <<EOF > .clang-format
 ---
 Language:        Cpp
