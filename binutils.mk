@@ -5,16 +5,15 @@ BINUTILS_DIR			:= $(OPTDIR)/$(BINUTILS)
 BINUTILS_INSTALL		:= $(BINUTILS_DIR)/.build/.install
 BINUTILS_INCLUDEDIR		:= $(INCLUDEDIR)/binutils
 BINUTILS_GIT_COMMIT_ISH		:= HEAD
-BINUTILS_TARGET			:= i686-elf
 
 $(BINUTILS_INSTALL): | $(BINUTILS_DIR)
 	cd $(BINUTILS_DIR) && git reset --hard $(BINUTILS_GIT_COMMIT_ISH)
 	mkdir -p $(@D)
-	cd $(@D) && ../configure --target=i686-elf --prefix=$(PWD)/$(BUILD) --with-sysroot --disable-nls --disable-werror --enable-plugins --enable-gold CXX=$(HOST_CXX) CC=$(HOST_CC)
+	cd $(@D) && ../configure --target=$(TARGET) --prefix=$(PWD)/$(BUILD) --with-sysroot --disable-nls --disable-werror --enable-plugins --enable-gold CXX=$(HOST_CXX) CC=$(HOST_CC)
 	$(MAKE) -C $(@D)
 	$(MAKE) -C $(@D) install
-	cp -af $(@D)/include $(BUILD)/include/binutils
-	ln -sf $(BINUTILS_TARGET)-ld.gold $(BINDIR)/ld
+	cp -af $(BINUTILS_DIR)/include $(BUILD)/include/binutils
+	ln -sf $(TARGET)-ld.gold $(BINDIR)/ld
 	touch $@
 
 

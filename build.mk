@@ -87,8 +87,14 @@ $(BUILD)/%.bin : %.asm | $(DEPDIR)/%.d
 	$(call NASM_BUILD,bin)
 
 
-build/%.$(TARGET_ARCH).o : %.asm | $(DEPDIR)/%.d
-	$(call NASM_BUILD,$(TARGET_ARCH))
+$(BUILD)/%.$(TARGET_FORMAT).o : %.asm | $(DEPDIR)/%.d
+	$(call NASM_BUILD,$(TARGET_FORMAT))
+
+$(BUILD)/%.$(TARGET_FORMAT): $(BUILD)/%.$(TARGET_FORMAT).o | %.$(TARGET_LDEMU).ld $(DEPDIR)/%.d
+	$(TARGET_LD) -m $(TARGET_LDEMU) -T$(*).$(TARGET_LDEMU).ld $^ $(KERNEL_LD_OPTS) -o $@ #--oformat binary
+
+$(BUILD)/%.$(TARGET_FORMAT).bin: $(BUILD)/%.$(TARGET_FORMAT).o | %.$(TARGET_LDEMU).ld $(DEPDIR)/%.d
+	$(TARGET_LD) -m $(TARGET_LDEMU) -T$(*).$(TARGET_LDEMU).ld $^ $(KERNEL_LD_OPTS) -o $@ --oformat binary
 
 $(BUILD)/%.a :
 	ar rcs $@ $^
@@ -128,7 +134,7 @@ $(BUILD)/include/$(PROJECT)/.link:
 
 
 clean:
-	rm -rf $(BUILD)/$(PROJECT) $(BUILD)/test $(BUILD)/deps $(LIBS) $(BIN)
+	rm -rf $(LIBS) $(BIN)
 	$(MAKE) $(PROJECT)-clean
 
 .PHONY: check-syntax

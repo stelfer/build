@@ -23,6 +23,22 @@ if [ -z "$HOST_CXX" ] ; then
     HOST_CC=$(which g++)
 fi
 
+if [ -z $TARGET ] ; then
+    TARGET=i686-elf
+fi
+
+if [ -z $TARGET_FORMAT ] ; then
+    TARGET_FORMAT=elf32
+fi
+
+if [ -z $TARGET_CCARCH ] ; then
+    TARGET_CCARCH=-m32
+fi
+
+if [ -z $TARGET_LDEMU ] ; then
+    TARGET_LDEMU=elf_i386
+fi
+
 echo "Creating stub for $PROJECT under $ORGANIZATION"
 
 echo "Creating Makefile"
@@ -38,6 +54,11 @@ PROJECT			:= ${PROJECT}
 # We need these to bootstrap our toolchain
 HOST_CC			:= ${HOST_CC}
 HOST_CXX		:= ${HOST_CXX}
+
+TARGET			:= ${TARGET}
+TARGET_FORMAT		:= ${TARGET_FORMAT}
+TARGET_CCARCH		:= ${TARGET_CCARCH}
+TARGET_LDEMU		:= ${TARGET_LDEMU}
 
 # Include the mothership
 include build/build.mk
