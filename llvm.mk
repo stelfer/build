@@ -118,8 +118,8 @@ DEPFLAGS 	 	 = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
 LINK			 = $(CXX) -B$(BUILD) $(CXXSTD) $(LDFLAGS) -L$(LIBDIR) -lc++ -lc++abi $(CXXFLTO)
 
 COMPILE_COMMANDS	:= $(BUILD)/compile_commands.json
-POSTCOMPILE_DEP		 = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d && touch $@
-POSTCOMPILE_CMD		 = ./build/build_compile_commands.py \
+POSTCOMPILE_DEP		 = @mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d && touch $@
+POSTCOMPILE_CMD		 = @./build/build_compile_commands.py \
 				$(COMPILE_COMMANDS) $@.json && rm $@.json
 POSTCOMPILE 	 	 = $(POSTCOMPILE_DEP) ; $(POSTCOMPILE_CMD)
 
