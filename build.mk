@@ -90,8 +90,11 @@ $(BUILD)/%.bin : %.asm | $(DEPDIR)/%.d
 $(BUILD)/%.$(TARGET_FORMAT).o : %.asm | $(DEPDIR)/%.d
 	$(call NASM_BUILD,$(TARGET_FORMAT))
 
-$(BUILD)/%.$(TARGET_FORMAT): $(BUILD)/%.$(TARGET_FORMAT).o | %.$(TARGET_LDEMU).ld $(DEPDIR)/%.d
-	$(TARGET_LD) -m $(TARGET_LDEMU) -T$(*).$(TARGET_LDEMU).ld $^ $(KERNEL_LD_OPTS) -o $@ #--oformat binary
+$(BUILD)/%.o : %.asm | $(DEPDIR)/%.d
+	$(call NASM_BUILD,$(TARGET_FORMAT))
+
+$(BUILD)/%.$(TARGET_FORMAT): $(BUILD)/%.$(TARGET_FORMAT).o | %.$(TARGET_LDEMU).ld
+	$(TARGET_LD) -m $(TARGET_LDEMU) -T$(*).$(TARGET_LDEMU).ld $^ $(KERNEL_LD_OPTS) -o $@
 
 $(BUILD)/%.$(TARGET_FORMAT).bin: $(BUILD)/%.$(TARGET_FORMAT).o | %.$(TARGET_LDEMU).ld $(DEPDIR)/%.d
 	$(TARGET_LD) -m $(TARGET_LDEMU) -T$(*).$(TARGET_LDEMU).ld $^ $(KERNEL_LD_OPTS) -o $@ --oformat binary
