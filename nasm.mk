@@ -11,7 +11,7 @@ $(NASM_UNPACK) 		: $(DOWNLOADS)/$($(NASM)_ARCHIVE)
 include $(NASM_INSTALL)
 
 $(NASM_INSTALL): | $(NASM_UNPACK)
-	cd $(@D) && sh configure --prefix=$(PWD)/$(BUILD) CXX=$(HOST_CC) CC=$(HOST_CC)
+	cd $(@D) && sh configure --prefix=$(PWD)/$(BUILD) CXX=$(HOST_CXX) CC=$(HOST_CC)
 	$(MAKE) -C $(@D)
 	$(MAKE) -C $(@D) install
 	touch $@
