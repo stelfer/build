@@ -14,7 +14,8 @@ include $(LIBEDIT_INSTALL)
 $(LIBEDIT_CONFIGURE): | $(LIBEDIT_UNPACK)
 	mkdir -p $(@D)
 	cd $(@D);\
-	./configure --prefix=$(PWD)/$(BUILD) CC=$(PWD)/$(CC) CXX=$(PWD)/$(CXX) CXXFLAGS="$(CXXSTD)"
+	./configure --prefix=$(PWD)/$(BUILD) CC=$(HOST_CC) CXX=$(HOST_CXX)
+	touch $@
 
 $(LIBEDIT_INSTALL): | $(LIBEDIT_CONFIGURE)
 	$(MAKE) -C $(@D)
