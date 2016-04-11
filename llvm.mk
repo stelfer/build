@@ -4,7 +4,7 @@ COMPILER_VER			:= $(LLVM)
 
 BUILD_LLDB			?= no
 
-LLVM_VER			:= 3.7.0
+LLVM_VER			:= 3.8.0
 LLVM				:= llvm-$(LLVM_VER)
 LLVM_UNPACK			:= $(OPTDIR)/$(LLVM)/.unpack
 LLVM_INSTALL			:= $(OPTDIR)/$(LLVM)/.build/.install
@@ -69,7 +69,7 @@ $(OPTDIR)/$(LLVM)/.build/.install: | $(OPTDIR)/$(LLVM)/.build/.configure
 		 -DLLVM_ENABLE_ASSERTIONS=On 				\
 		 -DLLVM_TARGETS_TO_BUILD="X86"				\
 		 -DLLVM_BINUTILS_INCDIR=$(PWD)/$(BINUTILS_INCLUDEDIR)	\
-		 -DCMAKE_CXX_FLAGS=-I$(PWD)/$(INCLUDEDIR) 		\
+		 -DCMAKE_CXX_FLAGS="-I$(PWD)/$(INCLUDEDIR)" 		\
 		 -DCMAKE_LIBRARY_PATH=-$(PWD)/$(LIBDIR);		\
 	$(MAKE) install
 	touch $@
