@@ -18,6 +18,7 @@ OPTDIR		:= $(BUILD)/opt
 LIBDIR		:= $(BUILD)/lib
 INCLUDEDIR	:= $(BUILD)/include
 BINDIR		:= $(BUILD)/bin
+PROJECTS	:= projects
 
 .PHONY: ALL
 all: ALL

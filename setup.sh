@@ -73,9 +73,6 @@ TARGET_LDEMU		:= ${TARGET_LDEMU}
 # Include the mothership
 include build/build.mk
 
-# Your source code goes here
-include \$(PROJECT)/Makefile
-
 include test/Makefile
 
 # Include other submodules for your project under projects
@@ -86,12 +83,11 @@ include projects/Makefile
 EOF
 
 echo "Setting up directories"
-DIRS="${PROJECT} test projects"
+DIRS="test projects/${PROJECT}"
 for d in $DIRS; do
     mkdir -p $d
     touch $d/Makefile
 done
-mkdir -p include
 
 echo "Setting up license"
 backup "LICENSE.txt"
