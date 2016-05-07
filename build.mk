@@ -125,6 +125,7 @@ $(OPTDIR)/%/.unpack : $(%_ARCHIVE)
 	case "$(suffix $($(*)_ARCHIVE))" in \
 		".zip") unzip -d $(OPTDIR) $< ;;\
 		".xz") 	tar -J -xf $< -C $(@D) --strip-components=1 ;;\
+		".bz2") tar -j -xf $< -C $(@D) --strip-components=1 ;;\
 		".gz") 	tar -z -xf $< -C $(@D) --strip-components=1 ;;\
 		*) echo "Don't know how to unarchive $($(*)_ARCHIVE)"; exit 1;;\
 	esac
