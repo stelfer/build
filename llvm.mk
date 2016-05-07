@@ -88,7 +88,7 @@ $(OPTDIR)/$(LLVM)/.build/.configure : |		\
 
 CC			:= $(BINDIR)/clang
 CCARCH			:= -match=native -mtune=native
-CCWARN			:= -Wall -Werror -Wextra -pedantic -Wno-language-extension-token -Wstrict-prototypes
+CCWARN			:= -Wall -Werror -Wextra -pedantic -Wno-language-extension-token -Wstrict-prototypes -Wno-unused-parameter
 CCDIAG			:= -ferror-limit=2 -ftrapv
 CCFLAGS			:= $(CCWARN) $(CCDIAG)
 CCSTD			:= -std=gnu11 -x c
