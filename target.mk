@@ -22,3 +22,13 @@ TARGET_COMPILE_CC	 = $(CC) $(TARGET_CCARCHFLAGS) $(TARGET_CCFLAGS) $(TARGET_CCIN
 TARGET_LD		 = $(BINDIR)/$(TARGET)-ld
 TARGET_STRIP		 = $(BINDIR)/$(TARGET)-strip
 TARGET_OBJCOPY		 = $(BINDIR)/$(TARGET)-objcopy
+
+
+TARGET_OS		 = $(TARGET_OS_FLAVOR)-$(TARGET_OS_VERSION)-$(TARGET_ARCH)
+
+# This allows us to cleanly link the header directories
+$(INCLUDEDIR)/%/.link : build/targets/%/include
+	ln -sf ../../projects/$(*)/include $(@D)
+	touch $@
+
+
