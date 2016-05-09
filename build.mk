@@ -124,6 +124,11 @@ $(OPTDIR)/%/.unpack : $(%_ARCHIVE)
 	esac
 	touch $@
 
+# This allows us to cleanly link the header directories
+$(INCLUDEDIR)/%/.link : projects/%/include
+	ln -sf ../../projects/$(*)/include $(@D)
+	touch $@
+
 clean:
 	@echo "Available clean targets: all-clean $(BUILD_CLEAN)"
 
