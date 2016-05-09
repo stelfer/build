@@ -110,8 +110,8 @@ endif
 CXXFLTO			:= -flto
 CXXFLAGS		:= $(CXXWARN) $(CXXDIAG) $(CXXDEBUG) $(CXXOPT) $(CXXINLINES) $(CXXFLTO)
 CXXINCLUDES		:= -I$(INCLUDEDIR)/c++/v1 -I$(INCLUDEDIR)
-CXXSTD			:= -std=c++14 -stdlib=libc++ -x c++
 COMPILE_CXX 		 = $(CXX) $(CXXFLAGS) $(CXXSTD) $(CXXINCLUDES)
+CXXSTD			:= -std=gnu++14 -stdlib=libc++ -x c++
 
 LDFLAGS			 = -use-gold-plugin -Wl,-duse-ld=gold -Wl,-Map,$@.map -Wl,-demangle
 DEPFLAGS 	 	 = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
