@@ -125,8 +125,11 @@ $(OPTDIR)/%/.unpack : $(%_ARCHIVE)
 	touch $@
 
 clean:
+	@echo "Available clean targets: all-clean $(BUILD_CLEAN)"
+
+all-clean:
 	rm -rf $(LIBS) $(BIN)
-	$(MAKE) $(PROJECT)-clean
+	$(MAKE) $(BUILD_CLEAN)
 
 .PHONY: check-syntax
 check-syntax:
