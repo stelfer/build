@@ -7,9 +7,6 @@ DEPDIR 		:= $(BUILD)/deps
 DEPS		:= $(shell find $(DEPDIR) -name \*.d)
 TEST_SOURCES	:= $(shell find test -name \*.cpp)
 TESTS		:= $(patsubst %.cpp,$(BUILD)/%,$(TEST_SOURCES))
-UNAME 		:= $(shell uname -rs)
-SYSNAME		:= $(firstword $(UNAME))
-REL 		:= $(lastword $(UNAME))
 OPT		?= yes
 COMPILER	?= LLVM
 INSTALL_RTAGS	?= yes
@@ -22,9 +19,6 @@ PROJECTS	:= projects
 
 .PHONY: ALL
 all: ALL
-
-# This makes sure that the includes are linked correctly
-include $(BUILD)/include/$(PROJECT)/.link
 
 # Targets
 include $(BUILD)/target.mk
@@ -47,10 +41,8 @@ endif
 # Gtest stuff
 include $(BUILD)/gtest.mk
 
-
 # We only need to include the system mk file if the config.h doesn't exist
 ifeq ($(wildcard $(BUILD)/include/config.h),)
-include $(BUILD)/$(SYSNAME).mk
 include $(BUILD)/config.mk
 endif
 
@@ -131,12 +123,6 @@ $(OPTDIR)/%/.unpack : $(%_ARCHIVE)
 		*) echo "Don't know how to unarchive $($(*)_ARCHIVE)"; exit 1;;\
 	esac
 	touch $@
-
-$(BUILD)/include/$(PROJECT)/.link:
-	mkdir -p $(BUILD)/include
-	ln -sf ../../include $(BUILD)/include/$(PROJECT)
-	touch $@
-
 
 clean:
 	rm -rf $(LIBS) $(BIN)
