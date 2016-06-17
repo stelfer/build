@@ -95,7 +95,38 @@ $(BUILD)/%.$(TARGET_FORMAT).bin: $(BUILD)/%.$(TARGET_FORMAT).o | %.$(TARGET_LDEM
 $(BUILD)/%.a :
 	ar rcs $@ $^
 
-$(BUILD)/test/% : $(BUILD)/test/%.o
+$(BUILD)/test/%.ll : $(BUILD)/test/%.bc
+	build/bin/llvm-link -o $@ $^ build/lib/gtest.bc
+
+$(BUILD)/test/% : $(BUILD)/test/%.ll
+	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
+	echo "[==========]" Running on $$h;\
+	rsync $< build/target.sh build/parse_perf_tests.py $$h:build-$(TARGET_OS) ;\
+	$(TARGET_SSH) $$h sh build-$(TARGET_OS)/target.sh ${<F}
+
+
+PROGN 		= ((lambda nil (gdb "~/src/work/build/bin/x86_64-linux-gnu-gdb -i=mi") (insert "target remote | ssh -T $(*D) sh build-centos-7.2-x86_64/debug.sh $(@F)") (comint-send-input)))
+
+
+#.INTERMEDIATE: $(BUILD)/test/%.gdb
+$(BUILD)/remotes/%.ll:
+	/Applications/Emacs.app/Contents/MacOS/bin/emacsclient --eval '$(PROGN)'
+
+zoo:
+	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
+	echo "[==========]" Running on $${p[$$n]};\
+	rsync $< build/debug.sh build/parse_perf_tests.py $${p[$$n]}:build-$(TARGET_OS);\
+	echo "target remote | ssh -T $${p[$$n]} sh build-centos-7.2-x86_64/debug.sh ${<F}" > $@
+
+$(BUILD)/test/%.debug : $(BUILD)/test/%.ll
+	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
+	echo "[==========]" Running on $${p[$$n]};\
+	rsync $< build/debug.sh build/parse_perf_tests.py $${p[$$n]}:build-$(TARGET_OS);\
+	$(MAKE) $(BUILD)/remotes/$${p[$$n]}/${<F}
+
+
+foo:
+	ssh -q -T -t bbox3 "./clang/bin/clang -o test -Lclang/lib -lpthread -lc++abi -lc++ work/$< /usr/lib/gcc/x86_64-redhat-linux/4.8.2/libsupc++.a && LD_LIBRARY_PATH=clang/lib ./test; a=$$? ; rm ./test; exit $$a"
 	mkdir -p $(@D)
 	$(LINK) -o $@.fail $^ $(GTEST_LIBS)
 	LD_LIBRARY_PATH=$(LIBDIR) $@.fail --gtest_output=xml:$(@D)/
@@ -137,11 +168,23 @@ all-clean:
 	$(MAKE) $(BUILD_CLEAN)
 
 .PHONY: check-syntax
-check-syntax:
+check-syntax: | check-hosts
 	$(COMPILE) -fsyntax-only $(CHK_SOURCES)
+
+%/check :
+	ssh $(@D) ./build-$(TARGET_OS)/clang/bin/clang -v >& /dev/null ||  $(MAKE) $(@D)/install
+
+%/install :
+	scp build/targets/build-$(TARGET_OS).tar.xz $(@D):
+	ssh $(@D) tar Jxfv build-$(TARGET_OS).tar.xz
 
 .PHONY: check-setup
 check-setup: ;
+
+.PHONY: check-hosts
+check-hosts: | $(TARGET_HOSTS:=/check)
+
+
 
 
 $(DEPDIR)/%.d: ;

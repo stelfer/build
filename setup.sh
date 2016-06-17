@@ -6,38 +6,53 @@
 #
 set -e
 
-PROJECT=$(basename $PWD)
-if [ $# -ge 1 ]; then
-    PROJECT=$1
-fi
+bits=32
+# Figure out the host
+v=($(file -Ls -F":" /bin/sh))
+case ${v[2]} in
+    64-bit)
+	bits=64;;
+esac
 
-if [ -z "$ORGANIZATION" ]; then
-    ORGANIZATION=$USER
-fi
 
-if [ -z "$HOST_CC" ] ; then
-    HOST_CC=$(which gcc)
-fi
+function get_default {
+    local _x=$1
+    local val
+    case $1 in
+	ORGANIZATION)
+	    val=$(id -F);;
+	HOST_CC)
+	    val=$(which gcc);;
+	HOST_CXX)
+	    val=$(which g++);;
+	TARGET_ARCH)
+	    val=$(uname -m);;
+	TARGET_ABI)
+	    val="elf";;
+	TARGET)
+	    val="${TARGET_ARCH}-${TARGET_ABI}";;
+	TARGET_FORMAT)
+	    val="${TARGET_ABI}${bits}";;
+	TARGET_CCARCH)
+	    val="-m${bits}";;
+	TARGET_LDEMU)
+	    val="${TARGET_ABI}_${TARGET_ARCH}";;
+    esac
+    eval $_x=$val
+}
 
-if [ -z "$HOST_CXX" ] ; then
-    HOST_CC=$(which g++)
-fi
+function get_var {
+    eval _y=\${$1}
+    if [ -z $_y ]
+    then
+	get_default $1
+    fi
+    eval _y=\${$1}
+    read -p "$1 [$_y]: " x
+    local _z=$1
+    eval $_z=\"${x:-$_y}\"
+}
 
-if [ -z $TARGET ] ; then
-    TARGET=i686-elf
-fi
-
-if [ -z $TARGET_FORMAT ] ; then
-    TARGET_FORMAT=elf32
-fi
-
-if [ -z $TARGET_CCARCH ] ; then
-    TARGET_CCARCH=-m32
-fi
-
-if [ -z $TARGET_LDEMU ] ; then
-    TARGET_LDEMU=elf_i386
-fi
 
 function backup {
     if [ -f $1 ]; then
@@ -47,46 +62,105 @@ function backup {
 
 }
 
-echo "Creating stub for $PROJECT under $ORGANIZATION"
 
+if [ x$INTERACTIVE != x"no" ]
+then
+
+    tgt_files=""
+    tgt_types=""
+    while read line
+    do
+	tgt_files="$tgt_files $line"
+	tgt_types="$tol $(basename $line .tar.xz)"
+    done <<< "$(ls -C1 build/targets/*.tar.xz)"
+
+    echo "Select target os:"
+    tgt_types=( $tgt_types )
+    i=0
+    for t in ${tgt_types[@]}
+    do
+	echo "[$i] $t"
+	i=$(( i + 1 ))
+    done
+    read -p "> " osi
+
+
+    tgt_type=${tgt_types[$osi]}
+    tgt_tuple=( ${tgt_type//-/ } )
+    TARGET_OS_FLAVOR=${tgt_tuple[0]}
+    TARGET_OS_VERSION=${tgt_tuple[1]}
+    TARGET_ARCH=${tgt_tuple[2]}
+
+    get_var ORGANIZATION
+    get_var HOST_CC
+    get_var HOST_CXX
+    get_var TARGET_ARCH
+    get_var TARGET_ABI
+    get_var TARGET
+    get_var TARGET_FORMAT
+    get_var TARGET_CCARCH
+    get_var TARGET_LDEMU
+    get_var TARGET_HOSTS
+fi
+
+cat <<EOF > .setup.sh
+#!/bin/bash
+
+# This script will re-run setup 
+export ORGANIZATION=$ORGANIZATION
+export HOST_CC=$HOST_CC
+export HOST_CXX=$HOST_CXX
+export TARGET_ARCH=$TARGET_ARCH
+export TARGET_ABI=$TARGET_ABI
+export TARGET=$TARGET
+export TARGET_FORMAT=$TARGET_FORMAT
+export TARGET_CCARCH=$TARGET_CCARCH
+export TARGET_LDEMU=$TARGET_LDEMU
+export TARGET_HOSTS=$TARGET_HOSTS
+export TARGET_OS_FLAVOR=$TARGET_OS_FLAVOR
+export TARGET_OS_VERSION=$TARGET_OS_VERSION
+export TARGET_ARCH=$TARGET_ARCH
+export INTERACTIVE=no
+
+sh $0
+
+EOF
 
 echo "Creating Makefile"
 backup "Makefile"    
 cat <<EOF > Makefile
 #
-# A Makefile for project \`${PROJECT}'
 # Automatically generated on $(date +%FT%T%Z)
 #
-
-# Override this if your project source is not the same name as the current directory
-PROJECT			:= ${PROJECT}
 
 # We need these to bootstrap our toolchain
 HOST_CC			:= ${HOST_CC}
 HOST_CXX		:= ${HOST_CXX}
 
-TARGET			:= ${TARGET}
+TARGET_ARCH		:= ${TARGET_ARCH}
+TARGET_ABI		:= ${TARGET_ABI}
+TARGET			?= ${TARGET_ARCH}-${TARGET_ABI}
 TARGET_FORMAT		:= ${TARGET_FORMAT}
 TARGET_CCARCH		:= ${TARGET_CCARCH}
 TARGET_LDEMU		:= ${TARGET_LDEMU}
+TARGET_OS_FLAVOR	:= ${TARGET_OS_FLAVOR}
+TARGET_OS_VERSION	:= ${TARGET_OS_VERSION}
+
 
 # Include the mothership
 include build/build.mk
 
-include test/Makefile
+# Include your projects under projects/PROJECT
+include projects/**/Makefile
 
-# Include other submodules for your project under projects
-include projects/Makefile
-
-# Include other Makefiles here...
-
+# Include your tests here under test/PROJECT
+include test/**/Makefile
 EOF
 
 echo "Setting up directories"
-DIRS="test projects/${PROJECT}"
+DIRS="test projects"
 for d in $DIRS; do
     mkdir -p $d
-    touch $d/Makefile
 done
 
 echo "Setting up license"
@@ -94,9 +168,9 @@ backup "LICENSE.txt"
 cp build/LICENSE.txt LICENSE.txt
 
 echo "Setting up emacs c++-style"
-backup ".${PROJECT}-c-style.el"
-cat <<EOF > .${PROJECT}-c-style.el
-(defconst ${PROJECT}-c-style
+backup ".build-c-style.el"
+cat <<EOF > .build-c-style.el
+(defconst build-c-style
   '((c-basic-offset . 4)
     (indent-tabs-mode . nil)
     (c-recognize-knr-p . nil)
@@ -138,9 +212,9 @@ cat <<EOF > .${PROJECT}-c-style.el
      . (c-semi&comma-no-newlines-before-nonblanks
 	c-semi&comma-no-newlines-for-oneline-inliners
 	c-semi&comma-inside-parenlist))
-    (c-echo-syntactic-information-p . t)) "${PROJECT} Programming Style")
+    (c-echo-syntactic-information-p . t)) "build Programming Style")
 
-(provide '${PROJECT}-c-style)
+(provide 'build-c-style)
 
 EOF
 
@@ -185,19 +259,19 @@ cat <<EOF > .dir-locals.el
 					 "\n\n")))
 			 (yas-expand-snippet s (point) (point) nil) )))))))
  (c++-mode . ((eval . (progn
-			(unless (assoc "${PROJECT}-c-style" c-style-alist)
-			  (load (concat "${PWD}/" ".${PROJECT}-c-style.el"))
-			  (c-add-style "${PROJECT}-c-style" ${PROJECT}-c-style))
-			(c-set-style "${PROJECT}-c-style")
+			(unless (assoc "build-c-style" c-style-alist)
+			  (load (concat "${PWD}/" ".build-c-style.el"))
+			  (c-add-style "build-c-style" build-c-style))
+			(c-set-style "build-c-style")
 			(unless rtags-path
 			  (setq rtags-path "${PWD}/build/bin")
 			  (setq rtags-process-flags "-d ${PWD}/build/.rtags"))
 			(rtags-start-process-unless-running)))))
  (c-mode . ((eval . (progn
-			(unless (assoc "${PROJECT}-c-style" c-style-alist)
-			  (load (concat "${PWD}/" ".${PROJECT}-c-style.el"))
-			  (c-add-style "${PROJECT}-c-style" ${PROJECT}-c-style))
-			(c-set-style "${PROJECT}-c-style")
+			(unless (assoc "build-c-style" c-style-alist)
+			  (load (concat "${PWD}/" ".build-c-style.el"))
+			  (c-add-style "build-c-style" build-c-style))
+			(c-set-style "build-c-style")
 			(unless rtags-path
 			  (setq rtags-path "${PWD}/build/bin")
 			  (setq rtags-process-flags "-d ${PWD}/build/.rtags"))

@@ -88,7 +88,7 @@ $(OPTDIR)/$(LLVM)/.build/.configure : |		\
 
 CC			:= $(BINDIR)/clang
 CCARCH			:= -match=native -mtune=native
-CCWARN			:= -Wall -Werror -Wextra -pedantic -Wno-language-extension-token -Wstrict-prototypes -Wno-unused-parameter
+CCWARN			:= -Wall -Werror -Wextra -Wno-language-extension-token -Wstrict-prototypes -Wno-unused-parameter
 CCDIAG			:= -ferror-limit=2 -ftrapv
 CCFLAGS			:= $(CCWARN) $(CCDIAG)
 CCSTD			:= -std=gnu11 -x c
@@ -98,7 +98,7 @@ COMPILE_CC		:= $(CC) $(CCARCH) $(CCFLAGS) $(CCINCLUDES) $(DEPFLAGS)
 
 CXX			:= $(BINDIR)/clang++
 CCARCH			:= $(CCARCH)
-CXXWARN			:= $(CCWARN)
+CXXWARN			:= $(CCWARN) -Wno-sign-compare
 CXXDIAG			:= -ferror-limit=2 -fdiagnostics-show-template-tree
 CXXDEBUG		:= -ggdb3
 CXXINLINES		:= -include $(INCLUDEDIR)/config.h

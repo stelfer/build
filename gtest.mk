@@ -15,6 +15,7 @@ $(GTEST_INSTALL): | $(OPTDIR)/$(LLVM)/.build/.install $(GTEST_UNPACK)
 	cp -af $(OPTDIR)/$(GTEST)/include/gtest $(INCLUDEDIR)
 	$(CXX) $(CXXSTD) $(CXXINCLUDES) -I$(OPTDIR)/$(GTEST) -c -o $(LIBDIR)/libgtest.o $(OPTDIR)/$(GTEST)/src/gtest-all.cc
 	ar -rv $(LIBDIR)/libgtest.a $(LIBDIR)/libgtest.o
+	$(CXX) $(CXXSTD) $(CXXINCLUDES) -I$(OPTDIR)/$(GTEST) -emit-llvm -c -o $(LIBDIR)/gtest.bc $(OPTDIR)/$(GTEST)/src/gtest-all.cc
 	touch $@
 
 
