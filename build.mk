@@ -15,6 +15,7 @@ OPTDIR		:= $(BUILD)/opt
 LIBDIR		:= $(BUILD)/lib
 INCLUDEDIR	:= $(BUILD)/include
 BINDIR		:= $(BUILD)/bin
+TEST		:= $(BUILD)/test
 PROJECTS	:= projects
 
 .PHONY: ALL
@@ -98,11 +99,12 @@ $(BUILD)/%.a :
 $(BUILD)/test/%.ll : $(BUILD)/test/%.bc
 	build/bin/llvm-link -o $@ $^ build/lib/gtest.bc
 
-$(BUILD)/test/% : $(BUILD)/test/%.ll
+$(BUILD)/test/%.xml : $(BUILD)/test/%.ll
 	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
 	echo "[==========]" Running on $$h;\
-	rsync $< build/target.sh build/parse_perf_tests.py $$h:build-$(TARGET_OS) ;\
-	$(TARGET_SSH) $$h sh build-$(TARGET_OS)/target.sh ${<F}
+	rsync $< $(TARGET_OBJS) build/target.sh build/parse_perf_tests.py $$h:build-$(TARGET_OS) ;\
+	$(TARGET_SSH) $$h sh build-$(TARGET_OS)/target.sh $(<F) $(notdir $(TARGET_OBJS)) &&\
+	rsync -q $$h:build-$(TARGET_OS)/$(<F).xml $(@)
 
 
 PROGN 		= ((lambda nil (gdb "~/src/work/build/bin/x86_64-linux-gnu-gdb -i=mi") (insert "target remote | ssh -T $(*D) sh build-centos-7.2-x86_64/debug.sh $(@F)") (comint-send-input)))
