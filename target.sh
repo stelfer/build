@@ -19,7 +19,7 @@ LIBSUP=$(ls /usr/lib/gcc/x86_64-redhat-linux/*/libsupc++.a | sort -nr | head -1)
     
 trap finish EXIT
 
-$CLANG -o $OUT -Wno-override-module -Lclang/lib -lpthread -lc++abi -lc++ -lm $SRC $LIBSUP
+$CLANG -o $OUT -Wno-override-module -Lclang/lib -lpthread -lc++abi -lc++ -lrt -lm $SRC $LIBSUP
 LD_LIBRARY_PATH=clang/lib ./$OUT --gtest_output=xml:$1.xml
 python ./parse_perf_tests.py $1.xml
 
