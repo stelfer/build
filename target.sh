@@ -1,25 +1,39 @@
 #!/bin/bash
-
+#
+# Copyright (C) 2016 by telfer - MIT License. See LICENSE.txt
+#
+#
 set -ue
 
-DIR=$(dirname $0)
-cd $DIR
-
 CLANG=./clang/bin/clang
-OUT=test.$$
+GDBSERVER=./gdbserver
 SRC=$@
+EXE=$(basename $SRC .ll)
+OUT=$EXE.xml
+LIBSUP=$(ls /usr/lib/gcc/$(gcc -dumpmachine)/*/libsupc++.a | sort -nr | head -1)
+DIR=$(dirname $0)
+
 function finish {
-    rm $OUT
     rm $SRC
     rm target.sh
     rm parse_perf_tests.py
 }
-
-LIBSUP=$(ls /usr/lib/gcc/x86_64-redhat-linux/*/libsupc++.a | sort -nr | head -1)
     
 trap finish EXIT
 
-$CLANG -o $OUT -Wno-override-module -Lclang/lib -lpthread -lc++abi -lc++ -lrt -lm $SRC $LIBSUP
-LD_LIBRARY_PATH=clang/lib ./$OUT --gtest_output=xml:$1.xml
-python ./parse_perf_tests.py $1.xml
-
+cd $DIR
+export LD_LIBRARY_PATH=clang/lib
+$CLANG -o $EXE $TARGET_LDFLAGS $SRC $LIBSUP 
+case $TARGET_MODE in
+    run)
+	./$EXE --gtest_output=xml:$OUT
+      	python ./parse_perf_tests.py $OUT
+	;;
+    debug*)
+	$GDBSERVER - ./$EXE
+	;;
+    *)
+	echo "Error: Bad TARGET_MODE, should never reach here"
+	exit 1
+	;;
+esac

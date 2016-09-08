@@ -42,6 +42,11 @@ endif
 # Gtest stuff
 include $(BUILD)/gtest.mk
 
+# Emacs stuff
+ifeq ($(NO_EMACS),)
+include $(BUILD)/emacs.mk
+endif
+
 # We only need to include the system mk file if the config.h doesn't exist
 ifeq ($(wildcard $(BUILD)/include/config.h),)
 include $(BUILD)/config.mk
@@ -55,9 +60,8 @@ ALL: $(BIN)
 $(BIN) : | $(TESTS) $(LIBS)
 
 #
-# Targets to build everything
+# Rules to build ELF objects
 #
-
 $(BUILD)/% : $(BUILD)/%.o
 	mkdir -p $(@D)
 	$(LINK) -o $@ $^
@@ -80,7 +84,6 @@ $(BUILD)/%.o : %.c | $(DEPDIR)/%.d
 $(BUILD)/%.bin : %.asm | $(DEPDIR)/%.d
 	$(call NASM_BUILD,bin)
 
-
 $(BUILD)/%.$(TARGET_FORMAT).o : %.asm | $(DEPDIR)/%.d
 	$(call NASM_BUILD,$(TARGET_FORMAT))
 
@@ -95,48 +98,6 @@ $(BUILD)/%.$(TARGET_FORMAT).bin: $(BUILD)/%.$(TARGET_FORMAT).o | %.$(TARGET_LDEM
 
 $(BUILD)/%.a :
 	ar rcs $@ $^
-
-$(BUILD)/test/%.ll : $(BUILD)/test/%.bc
-	build/bin/llvm-link -o $@ $^ build/lib/gtest.bc
-
-$(BUILD)/test/%.xml : $(BUILD)/test/%.ll
-	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
-	echo "[==========]" Running on $$h;\
-	rsync $< $(TARGET_OBJS) build/target.sh build/parse_perf_tests.py $$h:build-$(TARGET_OS) ;\
-	$(TARGET_SSH) $$h sh build-$(TARGET_OS)/target.sh $(<F) $(notdir $(TARGET_OBJS)) &&\
-	rsync -q $$h:build-$(TARGET_OS)/$(<F).xml $(@)
-
-
-PROGN 		= ((lambda nil (gdb "~/src/work/build/bin/x86_64-linux-gnu-gdb -i=mi") (insert "target remote | ssh -T $(*D) sh build-centos-7.2-x86_64/debug.sh $(@F)") (comint-send-input)))
-
-
-#.INTERMEDIATE: $(BUILD)/test/%.gdb
-$(BUILD)/remotes/%.ll:
-	/Applications/Emacs.app/Contents/MacOS/bin/emacsclient --eval '$(PROGN)'
-
-zoo:
-	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
-	echo "[==========]" Running on $${p[$$n]};\
-	rsync $< build/debug.sh build/parse_perf_tests.py $${p[$$n]}:build-$(TARGET_OS);\
-	echo "target remote | ssh -T $${p[$$n]} sh build-centos-7.2-x86_64/debug.sh ${<F}" > $@
-
-$(BUILD)/test/%.debug : $(BUILD)/test/%.ll
-	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
-	echo "[==========]" Running on $${p[$$n]};\
-	rsync $< build/debug.sh build/parse_perf_tests.py $${p[$$n]}:build-$(TARGET_OS);\
-	$(MAKE) $(BUILD)/remotes/$${p[$$n]}/${<F}
-
-
-foo:
-	ssh -q -T -t bbox3 "./clang/bin/clang -o test -Lclang/lib -lpthread -lc++abi -lc++ work/$< /usr/lib/gcc/x86_64-redhat-linux/4.8.2/libsupc++.a && LD_LIBRARY_PATH=clang/lib ./test; a=$$? ; rm ./test; exit $$a"
-	mkdir -p $(@D)
-	$(LINK) -o $@.fail $^ $(GTEST_LIBS)
-	LD_LIBRARY_PATH=$(LIBDIR) $@.fail --gtest_output=xml:$(@D)/
-	python $(BUILD)/parse_perf_tests.py $@.xml
-	mv $@.fail $@
-
-foofofof:
-	mv $< $@
 
 #
 # The rest of this used to auto-install packages. See llvm.mk and gtest.mk for examples of how to

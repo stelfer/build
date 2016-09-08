@@ -7,9 +7,12 @@ $($(GDB)_ARCHIVE)_URL 	:= http://ftp.gnu.org/gnu/gdb/$($(GDB)_ARCHIVE)
 GDB_INSTALL		:= $(OPTDIR)/$(GDB)/.install
 GDB_UNPACK		:= $(OPTDIR)/$(GDB)/.unpack
 GDB_CONFIGURE		:= $(OPTDIR)/$(GDB)/.configure
+GDB_REMOTE_CMD 		 = target remote | $(TARGET_SSH_CMD)
+
 $(GDB_UNPACK)		: $(DOWNLOADS)/$($(GDB)_ARCHIVE)
 
 include $(GDB_INSTALL)
+
 
 $(GDB_CONFIGURE): | $(GDB_UNPACK)
 	mkdir -p $(@D)

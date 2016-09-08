@@ -23,19 +23,33 @@ TARGET_AR		 = $(BINDIR)/$(TARGET)-ar
 TARGET_LD		 = $(BINDIR)/$(TARGET)-ld
 TARGET_STRIP		 = $(BINDIR)/$(TARGET)-strip
 TARGET_OBJCOPY		 = $(BINDIR)/$(TARGET)-objcopy
-
+TARGET_GDB		 = $(BINDIR)/$(TARGET)-gdb
 
 TARGET_OS		 = $(TARGET_OS_FLAVOR)-$(TARGET_OS_VERSION)-$(TARGET_ARCH)
+TARGET_BUILD_DIR	 = build-$(TARGET_OS)
 
 TARGET_HEADERS		:= $(INCLUDEDIR)/$(TARGET_OS)
 
+TARGET_MODE 		?= run
 TARGET_SSH		:= ssh -o Ciphers=arcfour -o Compression=no -T -t
-
+TARGET_SCP		:= scp -o Ciphers=arcfour -C -q 
+TARGET_SCRIPT		:= $(TARGET_BUILD_DIR)/target.sh
+TARGET_SSH_CMD  	= $(TARGET_SSH)\
+				$(HOST)\
+				TARGET_MODE=\"$(TARGET_MODE)\"\
+				TARGET_LDFLAGS=\"$(LLVM_BC_LDFLAGS)\"\
+				sh $(TARGET_SCRIPT) $(@F)
 
 include $(TARGET_HEADERS)/.link
 
 include build/gdb.mk
 
+$(BUILD)/target-debug/%.ll:
+	@$(TARGET_GDB) -ex '$(GDB_REMOTE_CMD)'
+
+$(BUILD)/target-run/%.ll:
+	@$(TARGET_SSH_CMD)
+	@$(TARGET_SCP) $(HOST):$(TARGET_BUILD_DIR)/$(patsubst %.ll,%,$(@F)){,.xml} $(*D)
 
 $(INCLUDEDIR)/%/.link: $(BUILD)/targets/%.tar.xz
 	tar -Jxf $< -C $(INCLUDEDIR)
