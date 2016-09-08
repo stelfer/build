@@ -14,5 +14,5 @@ endef
 
 EMACS_LAUNCH_REMOTE_GDB		 = $(EMACS_CLIENT) --eval '$(EMACS_REMOTE_GDB_PROGN)'
 
-$(BUILD)/remote-debug-in-emacs/%.ll:
+$(BUILD)/target-debug-in-emacs/%.ll:
 	@$(EMACS_LAUNCH_REMOTE_GDB)
