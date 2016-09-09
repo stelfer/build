@@ -173,6 +173,6 @@ $(BUILD)/test/%.ll : $(BUILD)/test/%.bc
 $(BUILD)/test/% : $(BUILD)/test/%.ll
 	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
 	echo "[==========]" Running on $$h;\
-	rsync $< build/target.sh build/parse_perf_tests.py $$h:build-$(TARGET_OS) ;\
-	$(MAKE) $(BUILD)/target-$(TARGET_MODE)/$< HOST=$$h
+	rsync $< $(TARGET_OBJS) build/target.sh build/parse_perf_tests.py $$h:build-$(TARGET_OS) ;\
+	$(MAKE) $(BUILD)/target-$(TARGET_MODE)/$< HOST=$$h TARGET_OBJS="$(TARGET_OBJS)"
 

@@ -8,7 +8,7 @@ set -ue
 CLANG=./clang/bin/clang
 GDBSERVER=./gdbserver
 SRC=$@
-EXE=$(basename $SRC .ll)
+EXE=$(basename $1 .ll)
 OUT=$EXE.xml
 LIBSUP=$(ls /usr/lib/gcc/$(gcc -dumpmachine)/*/libsupc++.a | sort -nr | head -1)
 DIR=$(dirname $0)

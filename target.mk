@@ -38,7 +38,7 @@ TARGET_SSH_CMD  	= $(TARGET_SSH)\
 				$(HOST)\
 				TARGET_MODE=\"$(TARGET_MODE)\"\
 				TARGET_LDFLAGS=\"$(LLVM_BC_LDFLAGS)\"\
-				sh $(TARGET_SCRIPT) $(@F)
+				sh $(TARGET_SCRIPT) $(@F) $(notdir $(TARGET_OBJS))
 
 include $(TARGET_HEADERS)/.link
 
