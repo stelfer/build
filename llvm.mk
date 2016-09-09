@@ -111,7 +111,7 @@ CXXFLTO			:= -flto
 CXXFLAGS		:= $(CXXWARN) $(CXXDIAG) $(CXXDEBUG) $(CXXOPT) $(CXXINLINES) $(CXXFLTO)
 CXXINCLUDES		:= -I$(INCLUDEDIR)/c++/v1 -I$(INCLUDEDIR)
 COMPILE_CXX 		 = $(CXX) $(CXXFLAGS) $(CXXSTD) $(CXXINCLUDES)
-CXXSTD			:= -std=gnu++14 -stdlib=libc++ -x c++
+CXXSTD			:= -std=gnu++1z -stdlib=libc++ -x c++
 
 LDFLAGS			 = -use-gold-plugin -Wl,-duse-ld=gold -Wl,-Map,$@.map -Wl,-demangle
 DEPFLAGS 	 	 = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
