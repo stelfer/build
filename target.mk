@@ -51,6 +51,9 @@ $(BUILD)/target-run/%.ll:
 	@$(TARGET_SSH_CMD)
 	@$(TARGET_SCP) $(HOST):$(TARGET_BUILD_DIR)/$(patsubst %.ll,%,$(@F)){,.xml} $(*D)
 
+$(BUILD)/target-valgrind/%.ll:
+	@$(TARGET_SSH_CMD)
+
 $(INCLUDEDIR)/%/.link: $(BUILD)/targets/%.tar.xz
 	tar -Jxf $< -C $(INCLUDEDIR)
 	touch $@

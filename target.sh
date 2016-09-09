@@ -32,6 +32,9 @@ case $TARGET_MODE in
     debug*)
 	$GDBSERVER - ./$EXE
 	;;
+    valgrind)
+	./valgrind/bin/valgrind --tool=memcheck --leak-check=full ./$EXE
+	;;
     *)
 	echo "Error: Bad TARGET_MODE, should never reach here"
 	exit 1
