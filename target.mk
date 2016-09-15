@@ -50,6 +50,7 @@ $(BUILD)/target-debug/%.ll:
 $(BUILD)/target-run/%.ll:
 	@$(TARGET_SSH_CMD)
 	@$(TARGET_SCP) $(HOST):$(TARGET_BUILD_DIR)/$(patsubst %.ll,%,$(@F)){,.xml} $(*D)
+	rsync -avz $(HOST):$(TARGET_BUILD_DIR)/test/ build/test
 
 $(BUILD)/target-valgrind/%.ll:
 	@$(TARGET_SSH_CMD)
