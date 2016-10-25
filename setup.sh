@@ -227,6 +227,7 @@ cat <<EOF > .dir-locals.el
 		     (setenv "PATH" (concat path ":" (getenv "PATH"))))
 		   (unless (string= path (car exec-path))
 		     (setq exec-path (push path exec-path)))))
+     	 (eval . (setq build-root "${PWD}"))
 	 (eval . (progn
 		   (define-auto-insert '"\\\\.\\\\([Hh]\\\\|hh\\\\|hpp\\\\)\\\\'"
 		     (lambda ()
