@@ -12,7 +12,7 @@ EXE=$(basename $1 .ll)
 OUT=$EXE.xml
 LIBSUP=$(ls /usr/lib/gcc/$(gcc -dumpmachine)/*/libsupc++.a | sort -nr | head -1)
 DIR=$(dirname $0)
-TEST_DIR=test
+#TEST_DIR=test
 
 function finish {
     rm $SRC
@@ -23,7 +23,7 @@ trap finish EXIT
 
 cd $DIR
 
-rm -rf $TEST_DIR
+#rm -rf $TEST_DIR
 
 export LD_LIBRARY_PATH=clang/lib
 $CLANG -o $EXE $TARGET_LDFLAGS $SRC $LIBSUP 
