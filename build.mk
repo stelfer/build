@@ -2,11 +2,11 @@
 
 PWD		:= $(shell pwd -P)
 PROJECT		?= $(notdir $(PWD))
-BUILD		:= build
+BUILD		?= build
 DEPDIR 		:= $(BUILD)/deps
 DEPS		:= $(shell find $(DEPDIR) -name \*.d)
-TEST_SOURCES	:= $(shell find test -name \*.cpp)
-TESTS		:= $(patsubst %.cpp,$(BUILD)/%,$(TEST_SOURCES))
+#TEST_SOURCES	:= $(shell find test -name \*.cpp)
+#TESTS		:= $(patsubst %.cpp,$(BUILD)/%,$(TEST_SOURCES))
 OPT		?= yes
 COMPILER	?= LLVM
 INSTALL_RTAGS	?= yes

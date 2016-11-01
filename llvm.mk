@@ -119,7 +119,7 @@ LINK			 = $(CXX) -B$(BUILD) $(CXXSTD) $(LDFLAGS) -L$(LIBDIR) -lc++ -lc++abi $(CX
 
 COMPILE_COMMANDS	:= $(BUILD)/compile_commands.json
 POSTCOMPILE_DEP		 = @mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d && touch $@
-POSTCOMPILE_CMD		 = @./build/build_compile_commands.py \
+POSTCOMPILE_CMD		 = @./$(BUILD)/build_compile_commands.py \
 				$(COMPILE_COMMANDS) $@.json && rm $@.json
 POSTCOMPILE 	 	 = $(POSTCOMPILE_DEP) ; $(POSTCOMPILE_CMD)
 
@@ -137,7 +137,7 @@ PRECOMPILE_DEP 		 = $(shell mkdir -p $(@D) $(dir $(DEPDIR)/$*.Td))
 
 # Build the $@.json compile_command file for clang ast parsing tools
 PRECOMPILE_CMD	 	 = $(file >$@.json,						\
-				[$(foreach x,$(filter build/%.h,$^),			\
+				[$(foreach x,$(filter $(BUILD)/%.h,$^),			\
 				$(call emit_compile_command,$(1) -fsyntax-only,$(x)),)	\
 				$(call emit_compile_command,$(1) -o $@ -c     ,$(2))])
 
