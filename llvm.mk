@@ -63,7 +63,7 @@ include $(LLVM_INSTALL)
 $(OPTDIR)/$(LLVM)/.build/.install: | $(OPTDIR)/$(LLVM)/.build/.configure
 	mkdir -p $(@D)
 	cd $(@D);\
-	cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo 			\
+	CXX=$(HOST_CXX) CC=$(HOST_CC) cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo 			\
 		 -DCMAKE_RULE_MESSAGES=OFF -DCMAKE_VERBOSE_MAKEFILE=ON 	\
 		 -DCMAKE_INSTALL_PREFIX=$(PWD)/$(BUILD)			\
 		 -DLLVM_ENABLE_ASSERTIONS=On 				\
