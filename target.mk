@@ -42,7 +42,7 @@ TARGET_SSH_CMD  	 = $(TARGET_SSH)\
 
 include $(TARGET_HEADERS)/.link
 
-include build/gdb.mk
+include $(BUILD)/gdb.mk
 
 $(BUILD)/target-debug/%.ll:
 	@$(TARGET_GDB) -ex '$(GDB_REMOTE_CMD)'

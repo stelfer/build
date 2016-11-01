@@ -158,7 +158,7 @@ $(BUILD)/%.bc : %.c | $(DEPDIR)/%.d
 	$(POSTCOMPILE_CMD)
 	$(POSTCOMPILE_DEP)
 
-$(BUILD)/%.bc : %.cpp | $(DEPDIR)/%.d
+$(BUILD)/%.bc : $(ROOT)%.cpp | $(DEPDIR)/%.d
 	$(PRECOMPILE_DEP)
 	$(call PRECOMPILE_CMD,$(LLVM_BC_COMPILE_CXX),$<)
 	$(LLVM_BC_COMPILE_CXX) $(DEPFLAGS) -o $@ -c $<
@@ -168,11 +168,11 @@ $(BUILD)/%.bc : %.cpp | $(DEPDIR)/%.d
 #
 #
 $(BUILD)/test/%.ll : $(BUILD)/test/%.bc
-	@$(LLVM_LINK) -o $@ $^ build/lib/gtest.bc
+	@$(LLVM_LINK) -o $@ $^ $(BUILD)/lib/gtest.bc
 
-$(BUILD)/test/% : $(BUILD)/test/%.ll
-	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
-	echo "[==========]" Running on $$h;\
-	rsync $< $(TARGET_OBJS) build/target.sh build/parse_perf_tests.py $$h:build-$(TARGET_OS) ;\
+$(BUILD)/test/%.pass.xml : $(BUILD)/test/%.ll
+	p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
+	echo "[==========]" Running on $$h $(TARGET_OBJS);\
+	rsync $< $(TARGET_OBJS) $(BUILD)/target.sh $$h:build-$(TARGET_OS) ;\
 	$(MAKE) $(BUILD)/target-$(TARGET_MODE)/$< HOST=$$h TARGET_OBJS="$(TARGET_OBJS)"
 

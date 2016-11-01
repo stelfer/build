@@ -17,7 +17,7 @@ import errno
 
 assert len(sys.argv) > 2
 
-def process(file):
+def process(file, root):
     try:
         values = json.load(file)
         keys = [x['file'] for x in values]            
@@ -38,9 +38,10 @@ def process(file):
                     nchanged = True
 
     if nchanged:
-        if not os.path.exists("build/tmp"):
-            os.mkdir("build/tmp")
-        with tempfile.NamedTemporaryFile(dir="build/tmp") as tmp:
+        tmpdir = root + "/tmp"
+        if not os.path.exists(tmpdir):
+            os.mkdir(tmpdir)
+        with tempfile.NamedTemporaryFile(dir=tmpdir) as tmp:
             json.dump(out.values(), tmp, indent=4)
             try:
                 os.rename(tmp.name, sys.argv[1])
@@ -52,6 +53,7 @@ def process(file):
 if __name__ == '__main__':
     flags = os.O_CREAT | os.O_RDONLY
     try:
+        root = os.path.dirname(sys.argv[1])
         fd = os.open(sys.argv[1], flags)
     except OSError as e:
         raise
@@ -62,7 +64,7 @@ if __name__ == '__main__':
                 cnt += 1
                 try:
                     fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                    process(file)
+                    process(file, root)
                     fcntl.flock(file, fcntl.LOCK_UN)
                     sys.exit(0)
                 except IOError as e:

@@ -1,8 +1,6 @@
 #Copyright (C) 2015 by AT&T Services Inc. MIT License. See LICENSE.txt
 
-PWD		:= $(shell pwd -P)
-PROJECT		?= $(notdir $(PWD))
-BUILD		?= build
+BUILD		:= $(ROOT)build
 DEPDIR 		:= $(BUILD)/deps
 DEPS		:= $(shell find $(DEPDIR) -name \*.d)
 #TEST_SOURCES	:= $(shell find test -name \*.cpp)
@@ -16,7 +14,7 @@ LIBDIR		:= $(BUILD)/lib
 INCLUDEDIR	:= $(BUILD)/include
 BINDIR		:= $(BUILD)/bin
 TEST		:= $(BUILD)/test
-PROJECTS	:= projects
+PROJECTS	:= $(ROOT)projects
 
 .PHONY: ALL
 all: ALL
