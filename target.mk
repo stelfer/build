@@ -33,8 +33,8 @@ TARGET_HEADERS		:= $(INCLUDEDIR)/$(TARGET_OS)
 TARGET_MODE 		?= run
 TARGET_SSH		:= ssh -o Ciphers=arcfour -o Compression=no -T -t
 TARGET_SCP		:= scp -o Ciphers=arcfour -C -q 
-TARGET_SCRIPT		:= $(TARGET_BUILD_DIR)/target.sh
-TARGET_SSH_CMD  	= $(TARGET_SSH)\
+TARGET_SCRIPT		 = $(TARGET_BUILD_DIR)/target.sh
+TARGET_SSH_CMD  	 = $(TARGET_SSH)\
 				$(HOST)\
 				TARGET_MODE=\"$(TARGET_MODE)\"\
 				TARGET_LDFLAGS=\"$(LLVM_BC_LDFLAGS)\"\
@@ -50,7 +50,6 @@ $(BUILD)/target-debug/%.ll:
 $(BUILD)/target-run/%.ll:
 	@$(TARGET_SSH_CMD)
 	@$(TARGET_SCP) $(HOST):$(TARGET_BUILD_DIR)/$(patsubst %.ll,%,$(@F)){,.xml} $(*D)
-	rsync -avz $(HOST):$(TARGET_BUILD_DIR)/test/ build/test
 
 $(BUILD)/target-valgrind/%.ll:
 	@$(TARGET_SSH_CMD)

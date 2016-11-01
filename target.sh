@@ -3,7 +3,7 @@
 # Copyright (C) 2016 by telfer - MIT License. See LICENSE.txt
 #
 #
-set -uex
+set -ue
 
 CLANG=./clang/bin/clang
 GDBSERVER=./gdbserver
@@ -15,10 +15,8 @@ DIR=$(dirname $0)
 TEST_DIR=test
 
 function finish {
-    find $TEST_DIR -name \*.csv -exec gzip {} \;
     rm $SRC
     rm target.sh
-    rm parse_perf_tests.py
 }
     
 trap finish EXIT
@@ -32,7 +30,6 @@ $CLANG -o $EXE $TARGET_LDFLAGS $SRC $LIBSUP
 case $TARGET_MODE in
     run)
 	./$EXE --gtest_output=xml:$OUT
-      	python ./parse_perf_tests.py $OUT
 	;;
     debug*)
 	$GDBSERVER - ./$EXE

@@ -47,13 +47,19 @@ def get_tree(s):
 # Start here
 print colors.GREEN + "[==========] " + colors.RESET + "Checking perf tests"
 
-root = sys.argv[1]
+
 curr = None
 prev = None
-if os.path.isfile(root + ".xml"):
-    curr = root + ".xml"
-    if os.path.isfile(root + ".pass.xml"):
-        prev = root + ".pass.xml"
+
+try:
+    curr = sys.argv[1]
+    if not os.path.isfile(curr):
+        curr = None
+    prev = sys.argv[2]
+    if not os.path.isfile(prev):
+        prev = None
+except:
+    pass
 
 if curr is None or prev is None:
     print colors.GREEN + "[       OK ] " + colors.RESET + "No previous results found"
@@ -95,8 +101,8 @@ for classname in curr:
                 ins = float(c['ins'])
                 cyc = float(c['cyc'])
                 N = float(c['N'])
-                print colors.GREEN + "[       OK ] " + colors.RESET + fullname + \
-                    " : ins=%.2f cyc=%.2f N=%s r=%s cpi=%s"  %(ins/N, cyc/N, c['N'], c['r'], c['cpi'])
+                print colors.GREEN + "[       OK ] %-20s " %( fullname) + colors.RESET +\
+                    ": ins=%.2f cyc=%.2f N=%s r=%s cpi=%s"  %(ins/N, cyc/N, c['N'], c['r'], c['cpi'])
 
 print colors.GREEN + "[  PASSED  ] " + colors.RESET + str(len(curr)) + " perf tests."
 

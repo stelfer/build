@@ -137,11 +137,19 @@ check-syntax: | check-hosts
 	$(COMPILE) -fsyntax-only $(CHK_SOURCES)
 
 %/check :
-	ssh $(@D) ./build-$(TARGET_OS)/clang/bin/clang -v >& /dev/null ||  $(MAKE) $(@D)/install
+	ssh $(@D) '[ $$(./build-$(TARGET_OS)/clang/bin/clang -v 2>&1 | grep "clang version" | cut -d" " -f3) = "$(LLVM_VER)" ]' ||  $(MAKE) $(@D)/install
 
 %/install :
-	scp build/targets/build-$(TARGET_OS).tar.xz $(@D):
+	$(MAKE) $(BUILD)/targets/build-$(TARGET_OS).tar.xz
+	scp $(BUILD)/targets/build-$(TARGET_OS).tar.xz $(@D):
 	ssh $(@D) tar Jxfv build-$(TARGET_OS).tar.xz
+
+
+$(BUILD)/targets/build-$(TARGET_OS).tar.xz: $(BUILD)/downloads/$($(LLVM)_ARCHIVE)
+	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
+	$(TARGET_SCP) $(BUILD)/build-target.sh $$h:/tmp;\
+	$(TARGET_SSH) $$h sh /tmp/build-target.sh $($($(LLVM)_ARCHIVE)_URL)
+
 
 .PHONY: check-setup
 check-setup: ;
