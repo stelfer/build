@@ -21,6 +21,8 @@ PROJECTS	:= projects
 .PHONY: ALL
 all: ALL
 
+include $(BUILD)/local.mk
+
 # Targets
 include $(BUILD)/target.mk
 
