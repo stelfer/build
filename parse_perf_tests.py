@@ -20,9 +20,10 @@
 #
 
 import sys
-import xml.etree.ElementTree as ET
 import os.path
 import math
+
+import build
 
 class colors:
     RED = '\033[31m'
@@ -30,18 +31,6 @@ class colors:
     GREEN = '\033[32m'
 
 
-def get_tree(s):
-    """ Go through the xml doc and extract the perf tests"""
-    tree = ET.parse(s)
-    root = tree.getroot()
-    attrs = dict()
-    for child in root.findall("testsuite/testcase[@perf-test='1']"):
-        c = child.attrib
-        cname = c['classname']
-        if not cname in attrs:
-            attrs[cname] = dict()
-        attrs[cname][c['name']] = c
-    return attrs
 
 
 # Start here
@@ -65,35 +54,23 @@ if curr is None or prev is None:
     print colors.GREEN + "[       OK ] " + colors.RESET + "No previous results found"
     sys.exit(0)
     
-curr = get_tree(curr)
-prev = get_tree(prev)
+curr_machine_id,curr_ts,curr = build.get_tree(curr)
+prev_machine_id,prev_ts,prev = build.get_tree(prev)
 
+if curr_machine_id != prev_machine_id:
+    print colors.GREEN + "[       OK ] " + colors.RESET + "Results from different machines"
+    sys.exit(0)
+    
 for classname in curr:
     for name in curr[classname]:
-    
         if classname in prev and name in prev[classname]:
             c = curr[classname][name]
             p = prev[classname][name]
-            
             fullname = classname + "." + name
-            
-            # Let number of instructions differ by 0.1%%
-            cond1 = math.fabs(float(c['ins']) - float(p['ins']))/float(c['ins']) > 0.001
 
-            # Number of test cycles must be the same
-            cond2 = int(c['N']) != int(p['N'])
-            
-            # r values can disagree by 1 part in 10^6
-            cond3 = math.fabs(float(c['r']) - float(p['r']))*1000 > 1.0
-
-            if cond1 or cond2 or cond3:
-                reason = " : "
-                if cond1:
-                    reason += " Instruction count differs (curr=%s, prev=%s)" % (c['ins'], p['ins'])
-                if cond2:
-                    reason += " Number of test cycles differs (curr=%s, prev=%s)" % (c['N'], p['N'])
-                if cond3:
-                    reason += " Ratios differ (curr=%s, prev=%s)" % (c['r'], p['r'])
+            # r values can disagree by 1 part in 10^3
+            if math.fabs(float(c['r']) - float(p['r']))*1000 > 1.0:
+                reason = " Ratios differ (curr=%s, prev=%s)" % (c['r'], p['r'])
                 print colors.RED + "[  FAILED  ] " + colors.RESET + fullname + reason
                 print colors.RED + "[==========] " + colors.RESET + "Run make with RESET_PERF=1 to clear prev"
                 sys.exit(1)
