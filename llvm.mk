@@ -172,7 +172,7 @@ $(BUILD)/test/%.ll : $(BUILD)/test/%.bc
 
 $(BUILD)/test/%.pass.xml : $(BUILD)/test/%.ll
 	p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
-	echo "[==========]" Running on $$h $(TARGET_OBJS);\
+	echo "[==========]" Running on $$h;\
 	rsync $< $(TARGET_OBJS) $(BUILD)/target.sh $$h:build-$(TARGET_OS) ;\
 	$(MAKE) $(BUILD)/target-$(TARGET_MODE)/$< HOST=$$h TARGET_OBJS="$(TARGET_OBJS)"
 	python $(BUILD)/parse_perf_tests.py $(@D)/$(*F).xml $@
