@@ -133,6 +133,15 @@ cat <<EOF > Makefile
 # Automatically generated on $(date +%FT%T%Z)
 #
 
+.PHONY: ALL
+all: ALL
+
+PROJECTS := $(ROOT)projects
+BUILD := $(ROOT)build
+
+# Include your projects under projects/PROJECT
+#include $(PROJECTS)/your_project/project.mk
+
 # We need these to bootstrap our toolchain
 HOST_CC			:= ${HOST_CC}
 HOST_CXX		:= ${HOST_CXX}
@@ -145,16 +154,14 @@ TARGET_CCARCH		:= ${TARGET_CCARCH}
 TARGET_LDEMU		:= ${TARGET_LDEMU}
 TARGET_OS_FLAVOR	:= ${TARGET_OS_FLAVOR}
 TARGET_OS_VERSION	:= ${TARGET_OS_VERSION}
+TARGET_OS_RELEASE	:=
 
+# Add build hosts here
+TARGET_HOSTS		:=
 
 # Include the mothership
-include build/build.mk
+include $(ROOT)build/build.mk
 
-# Include your projects under projects/PROJECT
-include projects/**/Makefile
-
-# Include your tests here under test/PROJECT
-include test/**/Makefile
 EOF
 
 echo "Setting up directories"

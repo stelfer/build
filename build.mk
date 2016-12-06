@@ -16,9 +16,6 @@ BINDIR		:= $(BUILD)/bin
 TEST		:= $(BUILD)/test
 PROJECTS	:= $(ROOT)projects
 
-.PHONY: ALL
-all: ALL
-
 include $(BUILD)/local.mk
 
 # Targets
