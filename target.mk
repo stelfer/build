@@ -26,9 +26,9 @@ TARGET_OBJCOPY		 = $(BINDIR)/$(TARGET)-objcopy
 TARGET_GDB		 = $(BINDIR)/$(TARGET)-gdb
 
 TARGET_OS		 = $(TARGET_OS_FLAVOR)-$(TARGET_OS_VERSION)-$(TARGET_ARCH)
-TARGET_BUILD_DIR	 = build-$(TARGET_OS)/builds/$(BUILD_ID)
+TARGET_BUILD_DIR	 = target-$(TARGET_OS)/builds/$(BUILD_ID)
 
-TARGET_HEADERS		:= $(INCLUDEDIR)/$(TARGET_OS)
+TARGET_HEADERS		:= $(INCLUDEDIR)/host-$(TARGET_OS)
 
 TARGET_MODE 		?= run
 TARGET_SSH		:= ssh -o Ciphers=arcfour -o Compression=no -T -t
