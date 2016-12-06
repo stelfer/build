@@ -13,9 +13,10 @@ GLIBC_DEVEL=$CORE_URL"glibc-devel-2.17-106.el7_2.8.x86_64.rpm"
 GLIBC_HEADERS=$CORE_URL"glibc-headers-2.17-106.el7_2.8.x86_64.rpm"
 KERNEL_HEADERS=$CORE_URL"kernel-headers-3.10.0-327.36.3.el7.x86_64.rpm"
 
-LIBNL="http://mirror.centos.org/centos/7.2.1511/os/x86_64/Packages/libnl3-devel-3.2.21-10.el7.x86_64.rpm"
+LIBNL="libnl-3.2.25.tar.gz"
+LIBNL_URL="http://www.infradead.org/~tgr/libnl/files/$LIBNL"
 
-RPMS="$GLIBC_DEVEL $GLIBC_HEADERS $KERNEL_HEADERS $LIBNL"
+RPMS="$GLIBC_DEVEL $GLIBC_HEADERS $KERNEL_HEADERS"
 
 mkdir -p /tmp/$ID
 
@@ -31,8 +32,16 @@ for r in *.rpm; do
     rpm2cpio $r | cpio -dium
 done
 
+wget -nc $LIBNL_URL
+
+tar zxf $LIBNL
+
+mkdir usr/include/libnl3
+cp -a libnl-3.2.25/include/netlink usr/include/libnl3
+
 rm -rf $ID
 mkdir -p $ID
+
 cp -a usr/include/* $ID
 tar -Jcf $ID.tar.xz $ID
 
