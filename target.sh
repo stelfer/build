@@ -12,6 +12,7 @@ BUILD=$PWD/$(dirname $0)
 ROOT=$BUILD/../..
 LIB_ROOT=$ROOT/target
 CLANG=$LIB_ROOT/bin/clang
+VALGRIND=$LIB_ROOT/bin/valgrind
 GDBSERVER=$LIB_ROOT/bin/gdbserver
 
 # The actual target to build
@@ -43,7 +44,7 @@ function run {
 	    $GDBSERVER - ./$TARGET
 	    ;;
 	valgrind)
-	    ./valgrind/bin/valgrind --tool=memcheck --leak-check=full ./$TARGET
+	    $VALGRIND --tool=memcheck --leak-check=full ./$TARGET
 	    ;;
 	*)
 	    echo "Error: Bad TARGET_MODE, should never reach here"
