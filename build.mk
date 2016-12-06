@@ -146,6 +146,14 @@ $(BUILD)/targets/build-$(TARGET_OS).tar.xz: $(BUILD)/downloads/$($(LLVM)_ARCHIVE
 	$(TARGET_SSH) $$h sh /tmp/build-target.sh $($($(LLVM)_ARCHIVE)_URL)
 
 
+$(BUILD)/targets/host-$(TARGET_OS).tar.xz:
+	p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
+	$(TARGET_SCP) $(BUILD)/host-$(TARGET_OS).sh $$h:/tmp;\
+	$(TARGET_SSH) $$h sh /tmp/host-$(TARGET_OS).sh;\
+	$(TARGET_SCP) $$h:/tmp/host-$(TARGET_OS)/host-centos-7.2-x86_64.tar.xz $@
+
+
+
 .PHONY: check-setup
 check-setup: ;
 
