@@ -135,7 +135,7 @@ check-syntax: | check-hosts
 	$(COMPILE) -fsyntax-only $(CHK_SOURCES)
 
 %/check :
-	ssh $(@D) '[ $$(./build-$(TARGET_OS)/clang/bin/clang -v 2>&1 | grep "clang version" | cut -d" " -f3) = "$(LLVM_VER)" ]' ||  $(MAKE) $(@D)/install
+	ssh $(@D) '[ $$(./build-$(TARGET_OS)/target/bin/clang -v 2>&1 | grep "clang version" | cut -d" " -f3) = "$(LLVM_VER)" ]' ||  $(MAKE) $(@D)/install
 
 %/install :
 	$(MAKE) $(BUILD)/targets/build-$(TARGET_OS).tar.xz

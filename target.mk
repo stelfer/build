@@ -26,7 +26,7 @@ TARGET_OBJCOPY		 = $(BINDIR)/$(TARGET)-objcopy
 TARGET_GDB		 = $(BINDIR)/$(TARGET)-gdb
 
 TARGET_OS		 = $(TARGET_OS_FLAVOR)-$(TARGET_OS_VERSION)-$(TARGET_ARCH)
-TARGET_BUILD_DIR	 = build-$(TARGET_OS)
+TARGET_BUILD_DIR	 = build-$(TARGET_OS)/builds/$(BUILD_ID)
 
 TARGET_HEADERS		:= $(INCLUDEDIR)/$(TARGET_OS)
 
@@ -38,20 +38,26 @@ TARGET_SSH_CMD  	 = $(TARGET_SSH)\
 				$(HOST)\
 				TARGET_MODE=\"$(TARGET_MODE)\"\
 				TARGET_LDFLAGS=\"$(LLVM_BC_LDFLAGS)\"\
-				sh $(TARGET_SCRIPT) $(@F) $(notdir $(TARGET_OBJS))
+				sh $(TARGET_SCRIPT) $(notdir $(TARGET_OBJS))
+
+TARGET_PUSH	  	 = rsync $(TARGET_OBJS) $(BUILD)/target.sh $(HOST):$(TARGET_BUILD_DIR)
+
 
 include $(TARGET_HEADERS)/.link
 
 include $(BUILD)/gdb.mk
 
 $(BUILD)/target-debug/%.ll:
+	$(TARGET_PUSH)
 	@$(TARGET_GDB) -ex '$(GDB_REMOTE_CMD)'
 
 $(BUILD)/target-run/%.ll:
-	@$(TARGET_SSH_CMD)
+	$(TARGET_PUSH)
+	$(TARGET_SSH_CMD)
 	@$(TARGET_SCP) $(HOST):$(TARGET_BUILD_DIR)/$(patsubst %.ll,%,$(@F)){,.xml} $(*D)
 
 $(BUILD)/target-valgrind/%.ll:
+	$(TARGET_PUSH)
 	@$(TARGET_SSH_CMD)
 
 $(INCLUDEDIR)/%/.link: $(BUILD)/targets/%.tar.xz
