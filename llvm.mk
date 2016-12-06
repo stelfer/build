@@ -171,10 +171,16 @@ $(BUILD)/test/%.ll : $(BUILD)/test/%.bc
 	@$(LLVM_LINK) -o $@ $^ $(BUILD)/lib/gtest.bc
 
 $(BUILD)/test/%.pass.xml : $(BUILD)/test/%.ll
-	p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
+	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
 	echo "[==========]" Running on $$h;\
 	rsync $< $(TARGET_OBJS) $(BUILD)/target.sh $$h:build-$(TARGET_OS) ;\
 	$(MAKE) $(BUILD)/target-$(TARGET_MODE)/$< HOST=$$h TARGET_OBJS="$(TARGET_OBJS)"
-	python $(BUILD)/parse_perf_tests.py $(@D)/$(*F).xml $@
-	@mv $(@D)/$(*F).xml $@
+	@if [ "$(RESET_TESTS)" = "" ] ;\
+	then \
+		python $(BUILD)/parse_perf_tests.py $(@D)/$(*F).xml $@;\
+	else \
+		echo "[==========]" Resetting tests. ;\
+	fi
+	mv $(@D)/$(*F).xml $@
+
 
