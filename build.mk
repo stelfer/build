@@ -16,8 +16,6 @@ BINDIR		:= $(BUILD)/bin
 TEST		:= $(BUILD)/test
 PROJECTS	:= $(ROOT)projects
 
-include $(BUILD)/local.mk
-
 # Targets
 include $(BUILD)/target.mk
 
@@ -43,6 +41,8 @@ include $(BUILD)/gtest.mk
 ifeq ($(NO_EMACS),)
 include $(BUILD)/emacs.mk
 endif
+
+# include $(BUILD)/libnl.mk
 
 # We only need to include the system mk file if the config.h doesn't exist
 ifeq ($(wildcard $(BUILD)/include/config.h),)
