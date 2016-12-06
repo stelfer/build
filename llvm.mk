@@ -145,8 +145,8 @@ PRECOMPILE_CMD	 	 = $(file >$@.json,						\
 
 LLVM_BC_CXXINCLUDES 	 = -isystem $(INCLUDEDIR)/c++/v1 -isystem $(TARGET_HEADERS) -I$(INCLUDEDIR) -target $(TARGET) $(TARGET_CCARCH)
 
-LLVM_BC_COMPILE_CC	:= $(CC) $(CCWARN) $(CCDIAG) $(CCSTD) $(SYS_INCLUDES) -emit-llvm
-LLVM_BC_COMPILE_CXX	:= $(CXX) $(CXXDEBUG) $(CXXWARN) $(CXXDIAG) $(CXXSTD) $(LLVM_BC_CXXINCLUDES) -emit-llvm
+LLVM_BC_COMPILE_CC	 = $(CC) $(CCWARN) $(CCDIAG) $(CCSTD) $(SYS_INCLUDES) -emit-llvm
+LLVM_BC_COMPILE_CXX	 = $(CXX) $(CXXDEBUG) $(CXXWARN) $(CXXDIAG) $(CXXSTD) $(LLVM_BC_CXXINCLUDES) -emit-llvm
 LLVM_BC_LDFLAGS		:= -Wno-override-module -Lclang/lib -lpthread -lc++abi -lc++ -lrt -lm
 LLVM_LINK		:= $(BINDIR)/llvm-link
 
