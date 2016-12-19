@@ -52,8 +52,8 @@ $(BUILD)/target-debug/%.ll:
 	@$(TARGET_GDB) -ex '$(GDB_REMOTE_CMD)'
 
 $(BUILD)/target-run/%.ll:
-	$(TARGET_PUSH)
-	$(TARGET_SSH_CMD)
+	@$(TARGET_PUSH)
+	@$(TARGET_SSH_CMD)
 	@$(TARGET_SCP) $(HOST):$(TARGET_BUILD_DIR)/$(patsubst %.ll,%,$(@F)){,.xml} $(*D)
 
 $(BUILD)/target-valgrind/%.ll:
