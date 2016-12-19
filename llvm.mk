@@ -167,6 +167,9 @@ $(BUILD)/%.bc : $(ROOT)%.cpp | $(DEPDIR)/%.d
 
 #
 #
+$(BUILD)/projects/%.ll : $(BUILD)/projects/%.bc
+	$(LLVM_LINK) -o $@ $^
+
 $(BUILD)/test/%.ll : $(BUILD)/test/%.bc
 	@$(LLVM_LINK) -o $@ $^ $(BUILD)/lib/gtest.bc
 
