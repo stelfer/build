@@ -107,10 +107,8 @@ $(DOWNLOADS)/% :
 $(OPTDIR)/%/.unpack : $(%_ARCHIVE)
 	mkdir -p $(@D)
 	case "$(suffix $($(*)_ARCHIVE))" in \
-		".zip") unzip -d $(OPTDIR) $< ;;\
-		".xz") 	tar -J -xf $< -C $(@D) --strip-components=1 ;;\
-		".bz2") tar -j -xf $< -C $(@D) --strip-components=1 ;;\
-		".gz") 	tar -z -xf $< -C $(@D) --strip-components=1 ;;\
+		".zip") 		unzip -d $(OPTDIR) $< ;;\
+		".xz"| ".bz2" | ".gz") 	tar maxvf $< -C $(@D) --strip-components=1 ;;\
 		*) echo "Don't know how to unarchive $($(*)_ARCHIVE)"; exit 1;;\
 	esac
 	touch $@
@@ -137,7 +135,7 @@ check-syntax: | check-hosts
 %/install :
 	$(MAKE) $(BUILD)/targets/target-$(TARGET_OS).tar.xz
 	scp $(BUILD)/targets/target-$(TARGET_OS).tar.xz $(@D):
-	ssh $(@D) tar Jxfv target-$(TARGET_OS).tar.xz
+	ssh $(@D) tar maxfv target-$(TARGET_OS).tar.xz
 
 
 $(BUILD)/targets/target-$(TARGET_OS).tar.xz: $(BUILD)/downloads/$($(LLVM)_ARCHIVE)
