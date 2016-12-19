@@ -173,7 +173,7 @@ $(BUILD)/test/%.ll : $(BUILD)/test/%.bc
 $(BUILD)/test/%.pass.xml : $(BUILD)/test/%.ll
 	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
 	build_id=`shasum $< | cut -d' ' -f1`;\
-	echo "[==========]" Running build $<[$$build_id] on $$h;\
+	echo "[==========]" Running build $< on $$h;\
 	$(MAKE) $(BUILD)/target-$(TARGET_MODE)/$< HOST=$$h TARGET_OBJS="$< $(TARGET_OBJS)" BUILD_ID=$$build_id
 	@if [ "$(RESET_TESTS)" = "" ] ;\
 	then \
