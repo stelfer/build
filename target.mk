@@ -61,9 +61,7 @@ $(BUILD)/target-valgrind/%.ll:
 	@$(TARGET_SSH_CMD)
 
 $(INCLUDEDIR)/%/.link: $(BUILD)/targets/%.tar.xz
-	tar -Jxf $< -C $(INCLUDEDIR)
-	touch $@
-
+	tar maxvf $< -C $(INCLUDEDIR)
 
 # This allows us to cleanly link the header directories
 # $(INCLUDEDIR)/%/.link : build/targets/%/include
