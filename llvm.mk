@@ -173,11 +173,19 @@ $(BUILD)/projects/%.ll : $(BUILD)/projects/%.bc
 $(BUILD)/test/%.ll : $(BUILD)/test/%.bc
 	@$(LLVM_LINK) -o $@ $^ $(BUILD)/lib/gtest.bc
 
+#
+# There is a trick here. Since we are remaking, we re-export the important variables to $(MAKE),
+# such as TARGET_OBJS below. This means that if you have a target-dependent variable you need to add
+# it here and export it to the build rule, such as */target-run/%.ll.
+#
 $(BUILD)/test/%.pass.xml : $(BUILD)/test/%.ll
 	@p=( $(TARGET_HOSTS) );	n=$$(( RANDOM % $${#p[@]} )); h=$${p[$$n]};\
 	build_id=`shasum $< | cut -d' ' -f1`;\
 	echo "[==========]" Running build $< on $$h;\
-	$(MAKE) $(BUILD)/target-$(TARGET_MODE)/$< HOST=$$h TARGET_OBJS="$< $(TARGET_OBJS)" BUILD_ID=$$build_id
+	$(MAKE) $(BUILD)/target-$(TARGET_MODE)/$< HOST=$$h \
+		TARGET_OBJS="$< $(TARGET_OBJS)" \
+		TARGET_LDFLAGS="$(TARGET_LDFLAGS)" \
+		BUILD_ID=$$build_id
 	@if [ "$(RESET_TESTS)" = "" ] ;\
 	then \
 		python $(BUILD)/parse_perf_tests.py $(@D)/$(*F).xml $@;\
