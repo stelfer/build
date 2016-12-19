@@ -181,6 +181,6 @@ $(BUILD)/test/%.pass.xml : $(BUILD)/test/%.ll
 	else \
 		echo "[==========]" Resetting tests. ;\
 	fi
-	mv $(@D)/$(*F).xml $@
+	@mv $(@D)/$(*F).xml $@
 
 
